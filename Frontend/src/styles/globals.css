@@ -1,0 +1,95 @@
+body {
+    background: var(--light-color);
+    color: var(--text-color);
+    font-family: "Inter", sans-serif;
+}
+
+.bg-brand {
+    background: var(--primary-color) !important;
+}
+
+.bg-dark-brand {
+    background: var(--dark-color) !important;
+}
+
+.text-brand {
+    color: var(--primary-color) !important;
+}
+
+.border-brand {
+    border-color: var(--border-color) !important;
+}
+
+.shadow-brand {
+    box-shadow: var(--box-shadow);
+}
+
+.rounded-brand {
+    border-radius: var(--border-radius);
+}
+
+.btn-brand {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #fff;
+}
+
+.btn-brand:hover {
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
+    color: #fff;
+}
+
+.bg-brand {
+    background: var(--primary-color) !important;
+}
+
+.bg-dark-brand {
+    background: var(--dark-color) !important;
+}
+
+.text-brand {
+    color: var(--primary-color) !important;
+}
+
+.sidebar-link {
+    color: rgba(255,255,255,.75);
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.sidebar-link:hover {
+    color: #fff;
+    background: rgba(255,255,255,.08);
+}
+
+.sidebar-link.active {
+    color: #fff;
+    background: var(--primary-color);
+}
+
+.sidebar-link svg {
+    flex-shrink: 0;
+}
+
+.sidebar-title {
+    letter-spacing: .5px;
+    font-weight: 600;
+}
+
+.sidebar-logo {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.sidebar-divider {
+    border-color: rgba(255,255,255,.08) !important;
+}

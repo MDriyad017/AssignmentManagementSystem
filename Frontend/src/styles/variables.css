@@ -1,0 +1,28 @@
+:root {
+    --primary-color: #004F4F;
+    --primary-hover: #006666;
+
+    --dark-color: #101414;
+
+    --light-color: #F5F7F8;
+    --white-color: #FFFFFF;
+
+    --border-color: #D8E0E0;
+
+    --text-color: #101414;
+    --text-muted: #6C757D;
+
+    --sidebar-width: 260px;
+    --navbar-height: 70px;
+
+    --border-radius: 10px;
+
+    --transition: .25s ease;
+
+    --box-shadow: 0 2px 10px rgba(0,0,0,.08);
+
+    --success-color: #198754;
+    --warning-color: #FFC107;
+    --danger-color: #DC3545;
+    --info-color: #0DCAF0;
+}
