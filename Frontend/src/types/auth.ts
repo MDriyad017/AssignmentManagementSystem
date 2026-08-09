@@ -6,7 +6,7 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-    id: number;
+    id: string;
     fullName: string;
     email: string;
     role: string;
@@ -14,7 +14,7 @@ export interface LoginResponse {
 }
 
 export interface AuthUser {
-    id: number;
+    id: string;
     fullName: string;
     email: string;
     role: UserRole;
@@ -25,8 +25,6 @@ export interface AuthContextType {
     token: string | null;
     isAuthenticated: boolean;
     isLoading: boolean;
-
-    login: (email: string, password: string) => Promise<void>;
-
+    login: (email: string, password: string) => Promise<AuthUser>;
     logout: () => void;
 }
