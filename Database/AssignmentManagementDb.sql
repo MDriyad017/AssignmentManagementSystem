@@ -1,17 +1,16 @@
 -- ============================================================
 -- Assignment Management System Database
 -- ============================================================
-
+-- Database Name: AssignmentManagementDB2
 -- 1. Users Table
 -- ============================================================
-
 CREATE TABLE Users
 (
-    Id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    Id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     Email VARCHAR(255) NOT NULL UNIQUE,
     PasswordHash VARCHAR(500) NOT NULL,
     FirstName VARCHAR(100) NOT NULL,
-    LastName VARCHAR(100) NOT NULL,
+    LastName VARCHAR(100) NULL,  
     Role VARCHAR(20) NOT NULL CHECK (Role IN ('Admin', 'Teacher', 'Student')),
     ProfilePictureUrl VARCHAR(500),
     IsActive BOOLEAN NOT NULL DEFAULT TRUE,
@@ -21,10 +20,9 @@ CREATE TABLE Users
 
 -- 2. Classes Table
 -- ============================================================
-
 CREATE TABLE Classes
 (
-    Id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    Id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     Name VARCHAR(100) NOT NULL,
     Code VARCHAR(20) NOT NULL UNIQUE,
     CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -33,13 +31,12 @@ CREATE TABLE Classes
 
 -- 3. Subjects Table
 -- ============================================================
-
 CREATE TABLE Subjects
 (
-    Id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    Id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     Name VARCHAR(100) NOT NULL,
-    Code VARCHAR(20) NOT NULL UNIQUE,
-    ClassId INTEGER NOT NULL,
+    Code VARCHAR(20) NULL UNIQUE, 
+    ClassId UUID NOT NULL,
     CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP NULL,
 
@@ -49,16 +46,14 @@ CREATE TABLE Subjects
 
 -- 4. TeacherSubjects Table
 -- ============================================================
-
 CREATE TABLE TeacherSubjects
 (
-    Id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    TeacherId INTEGER NOT NULL,
-    SubjectId INTEGER NOT NULL,
+    Id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    TeacherId UUID NOT NULL,
+    SubjectId UUID NOT NULL,
     AssignedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP NULL,
-    IsActive BOOLEAN NOT NULL DEFAULT TRUE,
 
     CONSTRAINT FK_TeacherSubjects_Teacher FOREIGN KEY (TeacherId) REFERENCES Users(Id) ON DELETE RESTRICT,
     CONSTRAINT FK_TeacherSubjects_Subject FOREIGN KEY (SubjectId) REFERENCES Subjects(Id) ON DELETE RESTRICT,
@@ -67,16 +62,14 @@ CREATE TABLE TeacherSubjects
 
 -- 5. StudentClasses Table
 -- ============================================================
-
 CREATE TABLE StudentClasses
 (
-    Id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    StudentId INTEGER NOT NULL,
-    ClassId INTEGER NOT NULL,
+    Id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    StudentId UUID NOT NULL,
+    ClassId UUID NOT NULL,
     EnrolledAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP NULL,
-    IsActive BOOLEAN NOT NULL DEFAULT TRUE,
 
     CONSTRAINT FK_StudentClasses_Student FOREIGN KEY (StudentId) REFERENCES Users(Id) ON DELETE RESTRICT,
     CONSTRAINT FK_StudentClasses_Class FOREIGN KEY (ClassId) REFERENCES Classes(Id) ON DELETE RESTRICT,
@@ -85,19 +78,18 @@ CREATE TABLE StudentClasses
 
 -- 6. Assignments Table
 -- ============================================================
-
 CREATE TABLE Assignments
 (
-    Id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    TeacherId INTEGER NOT NULL,
-    SubjectId INTEGER NOT NULL,
-    ClassId INTEGER NOT NULL,
+    Id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    TeacherId UUID NOT NULL,
+    SubjectId UUID NOT NULL,
+    ClassId UUID NOT NULL,
     Title VARCHAR(200) NOT NULL,
     Description TEXT,
-    TotalMarks INTEGER NOT NULL CHECK (TotalMarks > 0),
-    DueDate TIMESTAMP NOT NULL,
+    TotalMarks INTEGER NULL,  
+    DueDate TIMESTAMP NULL, 
     AttachmentUrl VARCHAR(500),
-    Status VARCHAR(20) NOT NULL DEFAULT 'Published' CHECK (Status IN ('Draft', 'Published', 'Closed')),
+    Status VARCHAR(20) NULL DEFAULT 'Published' CHECK (Status IN ('Draft', 'Published', 'Closed')),
     CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP NULL,
     IsActive BOOLEAN NOT NULL DEFAULT TRUE,
@@ -109,20 +101,19 @@ CREATE TABLE Assignments
 
 -- 7. Submissions Table
 -- ============================================================
-
 CREATE TABLE Submissions
 (
-    Id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    AssignmentId INTEGER NOT NULL,
-    StudentId INTEGER NOT NULL,
+    Id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    AssignmentId UUID NOT NULL,
+    StudentId UUID NOT NULL,
     SubmissionText TEXT,
     SubmissionFileUrl VARCHAR(500),
     SubmittedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    Status VARCHAR(20) NOT NULL DEFAULT 'Submitted' CHECK (Status IN ('Submitted', 'Late', 'Graded', 'Rejected')),
+    Status VARCHAR(20) NULL CHECK (Status IN ('Submitted', 'Late', 'Graded', 'Rejected')),
     MarksObtained NUMERIC(5,2),
     Feedback TEXT,
     GradedAt TIMESTAMP NULL,
-    GradedBy INTEGER,
+    GradedBy UUID NULL,
     CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP NULL,
     IsActive BOOLEAN NOT NULL DEFAULT TRUE,
@@ -135,14 +126,13 @@ CREATE TABLE Submissions
 
 -- 8. AuditLogs Table
 -- ============================================================
-
 CREATE TABLE AuditLogs
 (
-    Id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    UserId INTEGER NOT NULL,
-    Action VARCHAR(100) NOT NULL,
-    EntityName VARCHAR(100) NOT NULL,
-    EntityId INTEGER,
+    Id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    UserId UUID NOT NULL,
+    Action VARCHAR(100) NULL,  
+    EntityName VARCHAR(100) NULL,
+    EntityId UUID NULL,
     OldValues JSONB,
     NewValues JSONB,
     IpAddress VARCHAR(50),
