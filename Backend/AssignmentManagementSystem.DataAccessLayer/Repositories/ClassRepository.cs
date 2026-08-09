@@ -19,7 +19,7 @@ namespace AssignmentManagementSystem.DataAccessLayer.Repositories
             _context = context;
         }
 
-        public async Task<Class?> GetByIdAsync(int id)
+        public async Task<Class?> GetByIdAsync(Guid id)
         {
             return await _context.Classes.FirstOrDefaultAsync(x => x.Id == id);
         }

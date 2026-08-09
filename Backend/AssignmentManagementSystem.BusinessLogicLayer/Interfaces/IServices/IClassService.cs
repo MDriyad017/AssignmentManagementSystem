@@ -9,10 +9,10 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.Interfaces.IServices
 {
     public interface IClassService
     {
-        Task<ClassResponseDto?> GetClassByIdAsync(int id);
+        Task<ClassResponseDto?> GetClassByIdAsync(Guid id);
         Task<IEnumerable<ClassResponseDto>> GetAllClassesAsync();
         Task CreateClassAsync(ClassCreateDto entity);
-        Task UpdateClassAsync(int id, ClassUpdateDto entity);
-        Task DeleteClassAsync(int id);
+        Task UpdateClassAsync(Guid id, ClassCreateDto entity);
+        Task DeleteClassAsync(Guid id);
     }
 }

@@ -20,7 +20,7 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
             _classRepository = classRepository;
         }
 
-        public async Task<ClassResponseDto?> GetClassByIdAsync(int id)
+        public async Task<ClassResponseDto?> GetClassByIdAsync(Guid id)
         {
             try
             {
@@ -42,8 +42,9 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
             try
             {
                 IEnumerable<Class> classes = await _classRepository.GetAllAsync();
-
-                return classes.Select(MapToResponseDto);
+                return classes
+                    .Select(MapToResponseDto)
+                    .OrderBy(o => o.Code);
             }
             catch
             {
@@ -77,7 +78,7 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
             }
         }
 
-        public async Task UpdateClassAsync(int id, ClassUpdateDto entity)
+        public async Task UpdateClassAsync(Guid id, ClassCreateDto entity)
         {
             try
             {
@@ -109,7 +110,7 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
             }
         }
 
-        public async Task DeleteClassAsync(int id)
+        public async Task DeleteClassAsync(Guid id)
         {
             try
             {

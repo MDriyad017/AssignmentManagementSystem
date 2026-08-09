@@ -21,38 +21,9 @@ namespace AssignmentManagementSystem.API.Controllers
             _userService = userService;
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpGet]
-        [Route("Profile")]
-        public IActionResult Profile()
-        {
-            return Ok(new
-            {
-                UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
-                Email = User.FindFirstValue(ClaimTypes.Email),
-                Role = User.FindFirstValue(ClaimTypes.Role),
-                FirstName = User.FindFirstValue("FirstName"),
-                LastName = User.FindFirstValue("LastName")
-            });
-        }
-
-        [Authorize(Roles = "Teacher")]
-        [HttpGet("teacher-only")]
-        public IActionResult TeacherOnly()
-        {
-            return Ok("Welcome Teacher");
-        }
-
-        [Authorize(Roles = "Student")]
-        [HttpGet("student-only")]
-        public IActionResult StudentOnly()
-        {
-            return Ok("Welcome Student");
-        }
-
         [HttpGet]
         [Route("UGID001")]
-        public async Task<IActionResult> GetUserById(int id)
+        public async Task<IActionResult> GetUserById(Guid id)
         {
             try
             {
@@ -66,7 +37,6 @@ namespace AssignmentManagementSystem.API.Controllers
                             message = "User not found"
                         });
                 }
-
 
                 return Ok(user);
             }
@@ -127,7 +97,7 @@ namespace AssignmentManagementSystem.API.Controllers
 
         [HttpPost]
         [Route("UED001")]
-        public async Task<IActionResult> UpdateUser(int id, UserUpdateDto dto)
+        public async Task<IActionResult> UpdateUser(Guid id, UserUpdateDto dto)
         {
             try
             {
@@ -152,7 +122,7 @@ namespace AssignmentManagementSystem.API.Controllers
 
         [HttpPost]
         [Route("UD001")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser(Guid id)
         {
 
             try
@@ -174,7 +144,5 @@ namespace AssignmentManagementSystem.API.Controllers
                 });
             }
         }
-
-
     }
 }

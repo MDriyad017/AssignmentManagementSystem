@@ -21,7 +21,7 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
             _userRepository = userRepository;
         }
 
-        public async Task<UserResponseDto?> GetUserByIdAsync(int id)
+        public async Task<UserResponseDto?> GetUserByIdAsync(Guid id)
         {
             try
             {
@@ -42,7 +42,8 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
         {
             var users = await _userRepository.GetAllAsync();
 
-            return users.Select(MapToResponseDto);
+            return users.Where(x => x.Role != "Admin")
+                .Select(MapToResponseDto);
         }
 
         public async Task CreateUserAsync(UserCreateDto entity)
@@ -59,6 +60,7 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
 
                 User user = new User
                 {
+                    Id = Guid.NewGuid(),
                     FirstName = entity.FirstName,
                     LastName = entity.LastName,
                     Email = entity.Email,
@@ -78,7 +80,7 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
             }
         }
 
-        public async Task UpdateUserAsync(int id, UserUpdateDto entity)
+        public async Task UpdateUserAsync(Guid id, UserUpdateDto entity)
         {
 
             try
@@ -117,7 +119,7 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
             }
         }
 
-        public async Task DeleteUserAsync(int id)
+        public async Task DeleteUserAsync(Guid id)
         {
             try
             {

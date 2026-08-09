@@ -1,5 +1,7 @@
 ﻿using AssignmentManagementSystem.BusinessLogicLayer.DTOs.Class;
+using AssignmentManagementSystem.BusinessLogicLayer.Enums;
 using AssignmentManagementSystem.BusinessLogicLayer.Interfaces.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,7 +21,7 @@ namespace AssignmentManagementSystem.API.Controllers
         
         [HttpGet]
         [Route("CGID001")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(Guid id)
         {
             try
             {
@@ -64,6 +66,7 @@ namespace AssignmentManagementSystem.API.Controllers
             }
         }
 
+        [Authorize(Roles = nameof(UserRole.Admin))]
         [HttpPost]
         [Route("CC001")]
         public async Task<IActionResult> Create(ClassCreateDto dto)
@@ -88,9 +91,10 @@ namespace AssignmentManagementSystem.API.Controllers
             }
         }
 
+        [Authorize(Roles = nameof(UserRole.Admin))]
         [HttpPost]
         [Route("CU001")]
-        public async Task<IActionResult> Update(int id, ClassUpdateDto dto)
+        public async Task<IActionResult> Update(Guid id, ClassCreateDto dto)
         {
             try
             {
@@ -112,9 +116,10 @@ namespace AssignmentManagementSystem.API.Controllers
             }
         }
 
+        [Authorize(Roles = nameof(UserRole.Admin))]
         [HttpPost]
         [Route("CD001")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
@@ -135,6 +140,5 @@ namespace AssignmentManagementSystem.API.Controllers
                 });
             }
         }
-
     }
 }

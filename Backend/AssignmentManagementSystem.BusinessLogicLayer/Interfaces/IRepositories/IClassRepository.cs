@@ -9,7 +9,7 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.Interfaces.IRepositories
 {
     public interface IClassRepository
     {
-        Task<Class?> GetByIdAsync(int id);
+        Task<Class?> GetByIdAsync(Guid id);
         Task<IEnumerable<Class>> GetAllAsync();
         Task<Class?> GetByNameAsync(string name);
         Task<Class?> GetByCodeAsync(string code);

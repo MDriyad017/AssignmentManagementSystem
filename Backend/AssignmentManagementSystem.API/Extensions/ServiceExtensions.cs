@@ -16,12 +16,18 @@ namespace AssignmentManagementSystem.API.Extensions
             // Repositories
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IClassRepository, ClassRepository>();
+            services.AddScoped<ISubjectRepository, SubjectRepository>();
+            services.AddScoped<ITeacherSubjectAssignRepository, TeacherSubjectAssignRepository>();
+
+
 
             // Business Services
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IClassService, ClassService>();
+            services.AddScoped<ISubjectService, SubjectService>();
+            services.AddScoped<ITeacherSubjectAssignService, TeacherSubjectAssignService>();
 
 
             return services;

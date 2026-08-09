@@ -9,7 +9,7 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.Interfaces.IRepositories
 {
     public interface IUserRepository
     {
-        Task<User?> GetByIdAsync(int id);
+        Task<User?> GetByIdAsync(Guid id);
         Task<IEnumerable<User>> GetAllAsync();
         Task<User?> GetByEmailAsync(string email);
         Task<bool> ExistsByEmailAsync(string email);
