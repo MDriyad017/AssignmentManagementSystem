@@ -1,5 +1,5 @@
 "use client";
-import { Menu, LogOut, UserCircle, ChevronDown } from "lucide-react";
+import { Menu, LogOut, ChevronDown, LucideSettings } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useRef, useState } from "react";
@@ -62,9 +62,9 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
                                 <p className="text-white mb-0 fw-semibold">{user?.fullName}</p>
                                 <small className="text-white-50">{user?.email}</small>
                             </div>
-                            <button className="dropdown-item text-white d-flex align-items-center gap-2 px-3 py-2" style={{ borderRadius: "6px", transition: "var(--transition)" }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.08)"; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}>
-                                <UserCircle size={18} />
-                                Profile
+                            <button className="dropdown-item text-primary d-flex align-items-center gap-2 px-3 py-2" style={{ borderRadius: "6px", transition: "var(--transition)" }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.08)"; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}>
+                                <LucideSettings size={18} />
+                                Settings
                             </button>
                             <hr className="dropdown-divider" style={{ borderColor: "rgba(255,255,255,0.08)" }} />
                             <button className="dropdown-item text-danger d-flex align-items-center gap-2 px-3 py-2" onClick={handleLogout} style={{ borderRadius: "6px", transition: "var(--transition)" }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.08)"; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}>

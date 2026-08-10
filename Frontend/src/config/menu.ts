@@ -29,8 +29,7 @@ export const menuConfig: MenuConfig = {
 
     Teacher: [
         { title: "Dashboard", href: "/teacher/dashboard", icon: Home },
-        { title: "My Classes", href: "/teacher/classes", icon: GraduationCap },
-        { title: "My Subjects", href: "/teacher/subjects", icon: BookOpen },
+        { title: "Classes And Subjects", href: "/teacher/classesAndSubjects", icon: GraduationCap },
         { title: "Assignments", href: "/teacher/assignments", icon: ClipboardList },
         { title: "Submissions", href: "/teacher/submissions", icon: FileText },
         { title: "Profile", href: "/teacher/profile", icon: User },
@@ -38,7 +37,6 @@ export const menuConfig: MenuConfig = {
 
     Student: [
         { title: "Dashboard", href: "/student/dashboard", icon: Home },
-        { title: "My Classes", href: "/student/classes", icon: GraduationCap },
         { title: "My Subjects", href: "/student/subjects", icon: BookOpen },
         { title: "Assignments", href: "/student/assignments", icon: ClipboardList },
         { title: "Submissions", href: "/student/submissions", icon: FileText },

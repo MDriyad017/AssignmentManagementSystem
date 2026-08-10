@@ -33,6 +33,8 @@ export default function AssignTeacherSubjectDrawer({ isOpen, onClose, onSuccess 
     const [selectedTeacherId, setSelectedTeacherId] = useState<string>("");
     const [assigns, setAssigns] = useState<AssignRow[]>([]);
     const [existingAssigns, setExistingAssigns] = useState<{ subjectId: string; classId: string }[]>([]);
+    // ✅ All assignments (for checking subject availability across all teachers)
+    const [allAssigns, setAllAssigns] = useState<{ subjectId: string; classId: string }[]>([]);
 
     useEffect(() => {
         let isMounted = true;
@@ -57,6 +59,32 @@ export default function AssignTeacherSubjectDrawer({ isOpen, onClose, onSuccess 
         return () => { isMounted = false; };
     }, [isOpen]);
 
+    // ✅ Load all assignments for subject availability check
+    useEffect(() => {
+        let isMounted = true;
+        const loadAllAssigns = async () => {
+            try {
+                const data = await teacherSubjectAssignService.getAllGrouped();
+                if (isMounted && data) {
+                    const all = data.flatMap((group) =>
+                        group.assigns.map((a) => ({
+                            subjectId: a.subjectId,
+                            classId: a.classId,
+                        }))
+                    );
+                    setAllAssigns(all);
+                }
+            } catch (err) {
+                if (isMounted) console.error("Failed to load all assigns:", err);
+            }
+        };
+        if (isOpen) {
+            loadAllAssigns();
+        }
+        return () => { isMounted = false; };
+    }, [isOpen]);
+
+    // ✅ Load existing assignments for selected teacher
     useEffect(() => {
         let isMounted = true;
         const loadExistingAssigns = async () => {
@@ -94,12 +122,15 @@ export default function AssignTeacherSubjectDrawer({ isOpen, onClose, onSuccess 
         setAssigns(assigns.filter((row) => row.id !== id));
     };
 
-    const isSubjectAlreadyAssigned = (classId: string, subjectId: string, currentRowId: string) => {
-        const existing = existingAssigns.some(
-            (e) => e.subjectId === subjectId && e.classId === classId
+    // ✅ Check if subject is already assigned to ANY teacher (except current teacher)
+    const isSubjectAlreadyAssignedToAnyTeacher = (classId: string, subjectId: string, currentRowId: string) => {
+        // Check if any teacher (other than current selected) has this subject assigned
+        const assignedToOther = allAssigns.some(
+            (a) => a.subjectId === subjectId && a.classId === classId
         );
-        if (existing) return true;
+        if (assignedToOther) return true;
 
+        // Check in current batch (excluding current row)
         const inBatch = assigns.some(
             (row) => row.id !== currentRowId && row.classId === classId && row.subjectId === subjectId
         );
@@ -213,38 +244,36 @@ export default function AssignTeacherSubjectDrawer({ isOpen, onClose, onSuccess 
                                             <td colSpan={3} className="text-center text-muted py-3">No assigns added. Click &quot;Add Row&quot; to start.</td>
                                         </tr>
                                     ) : (
-                                        assigns.map((row) => {
-                                            const hasExistingAssigns = existingAssigns.length > 0;
-                                            return (
-                                                <tr key={row.id}>
-                                                    <td>
-                                                        <select className="form-select form-select-sm" value={row.classId} onChange={(e) => updateRow(row.id, "classId", e.target.value)}>
-                                                            <option value="">Select Class</option>
-                                                            {classes.map((cls) => <option key={cls.id} value={cls.id}>{cls.name} ({cls.code})</option>)}
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <select className="form-select form-select-sm" value={row.subjectId} onChange={(e) => updateRow(row.id, "subjectId", e.target.value)}>
-                                                            <option value="">Select Subject</option>
-                                                            {row.availableSubjects.map((sub) => {
-                                                                const isAssigned = isSubjectAlreadyAssigned(row.classId, sub.id, row.id);
-                                                                return (
-                                                                    <option key={sub.id} value={sub.id} disabled={isAssigned}>
-                                                                        {sub.name} {sub.code ? `(${sub.code})` : ""}
-                                                                        {isAssigned ? " (Already Assigned)" : ""}
-                                                                    </option>
-                                                                );
-                                                            })}
-                                                        </select>
-                                                    </td>
-                                                    <td className="text-center">
-                                                        <button type="button" className="btn btn-sm btn-danger" onClick={() => removeRow(row.id)}>
-                                                            <Trash2 size={14} />
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })
+                                        assigns.map((row) => (
+                                            <tr key={row.id}>
+                                                <td>
+                                                    <select className="form-select form-select-sm" value={row.classId} onChange={(e) => updateRow(row.id, "classId", e.target.value)}>
+                                                        <option value="">Select Class</option>
+                                                        {classes.map((cls) => <option key={cls.id} value={cls.id}>{cls.name} ({cls.code})</option>)}
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select className="form-select form-select-sm" value={row.subjectId} onChange={(e) => updateRow(row.id, "subjectId", e.target.value)}>
+                                                        <option value="">Select Subject</option>
+                                                        {row.availableSubjects.map((sub) => {
+                                                            // ✅ Check if subject is already assigned to ANY teacher
+                                                            const isAssigned = isSubjectAlreadyAssignedToAnyTeacher(row.classId, sub.id, row.id);
+                                                            return (
+                                                                <option key={sub.id} value={sub.id} disabled={isAssigned}>
+                                                                    {sub.name} {sub.code ? `(${sub.code})` : ""}
+                                                                    {isAssigned ? " (Already Assigned to Another Teacher)" : ""}
+                                                                </option>
+                                                            );
+                                                        })}
+                                                    </select>
+                                                </td>
+                                                <td className="text-center">
+                                                    <button type="button" className="btn btn-sm btn-danger" onClick={() => removeRow(row.id)}>
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
                                     )}
                                 </tbody>
                             </table>

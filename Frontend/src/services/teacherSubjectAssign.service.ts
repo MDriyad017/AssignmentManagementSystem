@@ -45,12 +45,41 @@ export const teacherSubjectAssignService = {
       }));
    },
 
+   // ✅ Fixed: getByTeacherId now properly handles response
    getByTeacherId: async (teacherId: string): Promise<TeacherGroup> => {
       const response = await apiClient.get(`/TeacherSubjectAssign/CGT001?teacherId=${teacherId}`);
-      const data: RawTeacherGroup = response.data || {};
+      console.log("🔵 Raw API Response:", response.data);
+      
+      // ✅ Check if response is an array (indexed by numbers)
+      const data = response.data || {};
+      
+      // ✅ If data has numeric keys (0, 1, 2...), convert to array
+      let assigns: TeacherAssign[] = [];
+      
+      if (Array.isArray(data)) {
+         // If it's already an array
+         assigns = data;
+      } else if (data.assigns && Array.isArray(data.assigns)) {
+         // If it has assigns property
+         assigns = data.assigns;
+      } else if (data.teacherSubjectAssigns && Array.isArray(data.teacherSubjectAssigns)) {
+         // If it has teacherSubjectAssigns property
+         assigns = data.teacherSubjectAssigns;
+      } else {
+         // If data has numeric keys (0, 1, 2...), convert to array
+         const keys = Object.keys(data).filter(key => !isNaN(Number(key)));
+         if (keys.length > 0) {
+            assigns = keys.map(key => data[key]);
+         }
+      }
+      
+      console.log("🔵 Processed Assigns:", assigns);
+      
       return {
-          ...data,
-          assigns: data.assigns || data.teacherSubjectAssigns || []
+          teacherId: data.teacherId || teacherId,
+          teacherName: data.teacherName || assigns[0]?.teacherName || "",
+          teacherEmail: data.teacherEmail || assigns[0]?.teacherEmail || "",
+          assigns: assigns
       };
    },
 

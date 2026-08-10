@@ -1,6 +1,8 @@
 // Frontend/src/types/teacherSubjectAssign.ts
 
 export interface TeacherAssign {
+    teacherEmail: string;
+    teacherName: string;
     id: string;
     classId: string;
     className: string;
