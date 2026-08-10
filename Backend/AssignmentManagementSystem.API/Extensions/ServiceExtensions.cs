@@ -18,6 +18,8 @@ namespace AssignmentManagementSystem.API.Extensions
             services.AddScoped<IClassRepository, ClassRepository>();
             services.AddScoped<ISubjectRepository, SubjectRepository>();
             services.AddScoped<ITeacherSubjectAssignRepository, TeacherSubjectAssignRepository>();
+            services.AddScoped<IStudentClassAssignRepository, StudentClassAssignRepository>();
+
 
 
 
@@ -28,6 +30,8 @@ namespace AssignmentManagementSystem.API.Extensions
             services.AddScoped<IClassService, ClassService>();
             services.AddScoped<ISubjectService, SubjectService>();
             services.AddScoped<ITeacherSubjectAssignService, TeacherSubjectAssignService>();
+            services.AddScoped<IStudentClassAssignService, StudentClassAssignService>();
+
 
 
             return services;

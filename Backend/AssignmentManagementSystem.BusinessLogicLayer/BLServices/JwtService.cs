@@ -30,7 +30,7 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role),
                 new Claim("FirstName", user.FirstName),
-                new Claim("LastName", user.LastName)
+                new Claim("LastName", user.LastName ?? "")
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
