@@ -11,7 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\Assignment\" />
     <Folder Include="DTOs\Submission\" />
     <Folder Include="Exceptions\" />
   </ItemGroup>

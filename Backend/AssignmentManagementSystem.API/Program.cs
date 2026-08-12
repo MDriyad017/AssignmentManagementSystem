@@ -31,7 +31,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerDocumentation();
 }
 
-
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseCors("Frontend");
 app.UseAuthentication();
