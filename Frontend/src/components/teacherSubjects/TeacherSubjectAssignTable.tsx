@@ -63,9 +63,7 @@ export default function TeacherSubjectAssignTable({ groups, loading, onView, onD
                 <tbody>
                     {groups.map((group, index) => {
                         const assigns = group.assigns || [];
-                        const uniqueClasses = assigns
-                            .map((a) => a.className)
-                            .filter((value, idx, self) => self.indexOf(value) === idx);
+                        const uniqueClasses = assigns.map((a) => a.className).filter((value, idx, self) => self.indexOf(value) === idx);
 
                         return (
                             <tr key={group.teacherId}>
