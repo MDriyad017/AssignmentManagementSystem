@@ -9,7 +9,6 @@ using System.Security.Claims;
 
 namespace AssignmentManagementSystem.API.Controllers
 {
-    [Authorize(Roles = nameof(UserRole.Admin))]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -70,7 +69,6 @@ namespace AssignmentManagementSystem.API.Controllers
             }
         }
 
-        [Authorize(Roles = nameof(UserRole.Admin))]
         [HttpPost]
         [Route("UIN001")]
         public async Task<IActionResult> CreateUser(UserCreateDto dto)
@@ -95,6 +93,7 @@ namespace AssignmentManagementSystem.API.Controllers
             }
         }
 
+        [Authorize(Roles = nameof(UserRole.Admin))]
         [HttpPost]
         [Route("UED001")]
         public async Task<IActionResult> UpdateUser(Guid id, UserUpdateDto dto)
@@ -120,6 +119,7 @@ namespace AssignmentManagementSystem.API.Controllers
             }
         }
 
+        [Authorize(Roles = nameof(UserRole.Admin))]
         [HttpPost]
         [Route("UD001")]
         public async Task<IActionResult> DeleteUser(Guid id)
