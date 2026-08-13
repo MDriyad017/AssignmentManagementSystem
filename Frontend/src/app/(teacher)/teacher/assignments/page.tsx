@@ -3,11 +3,11 @@ import { useState, useEffect } from "react";
 import { Plus, Search } from "lucide-react";
 import { assignmentService } from "@/services/assignment.service";
 import { useAuth } from "@/hooks/useAuth";
-import { Assignment } from "@/types/assignment";
-import AssignmentTable from "@/components/assignments/AssignmentTable";
-import CreateAssignmentDrawer from "@/components/assignments/CreateAssignmentDrawer";
-import EditAssignmentDrawer from "@/components/assignments/EditAssignmentDrawer";
-import AssignmentViewModal from "@/components/assignments/AssignmentViewModal";
+import { Assignment } from "@/types/teacherAssignment";
+import AssignmentTable from "@/components/assignments/teacher/AssignmentTable";
+import CreateAssignmentDrawer from "@/components/assignments/teacher/CreateAssignmentDrawer";
+import EditAssignmentDrawer from "@/components/assignments/teacher/EditAssignmentDrawer";
+import AssignmentViewModal from "@/components/assignments/teacher/AssignmentViewModal";
 
 export default function TeacherAssignmentsPage() {
     const { user } = useAuth();

@@ -6,7 +6,7 @@ import {
     CreateResponse, 
     UpdateResponse,
     DeleteResponse,
-} from "@/types/assignment";
+} from "@/types/teacherAssignment";
 
 export const assignmentService = {
 

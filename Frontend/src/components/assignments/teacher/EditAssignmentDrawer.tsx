@@ -1,5 +1,5 @@
 "use client";
-import { X, Save, Upload } from "lucide-react";
+import { X, Save, Upload, FileText } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,27 +7,14 @@ import { z } from "zod";
 import { assignmentService } from "@/services/assignment.service";
 import { teacherSubjectAssignService } from "@/services/teacherSubjectAssign.service";
 import { useAuth } from "@/hooks/useAuth";
-import { Assignment } from "@/types/assignment";
+import { Assignment } from "@/types/teacherAssignment";
 import apiClient from "@/lib/api-client";
+import { getDisplayFileName } from "@/utils/fileUtils";
 
-interface ClassOption {
-    id: string;
-    name: string;
-}
+interface ClassOption { id: string; name: string; }
+interface SubjectOption { id: string; name: string; }
+interface TeacherAssignData { classId: string; className: string; subjectId: string; subjectName: string; }
 
-interface SubjectOption {
-    id: string;
-    name: string;
-}
-
-interface TeacherAssignData {
-    classId: string;
-    className: string;
-    subjectId: string;
-    subjectName: string;
-}
-
-// ✅ Helper function to safely get error message
 const getErrorMessage = (error: unknown): string => {
     if (!error) return '';
     if (typeof error === 'string') return error;
@@ -69,101 +56,81 @@ export default function EditAssignmentDrawer({ isOpen, onClose, onSuccess, assig
     const [loading, setLoading] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [fileName, setFileName] = useState<string>("");
+    const [existingFileUrl, setExistingFileUrl] = useState<string>("");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<EditAssignmentFormData>({
         resolver: zodResolver(editAssignmentSchema),
-        defaultValues: {
-            status: "Published",
-            isActive: true,
-            totalMarks: undefined,
-        },
+        defaultValues: { status: "Published", isActive: true, totalMarks: undefined },
     });
 
     const selectedClassId = watch("classId");
     const selectedStatus = watch("status");
 
     useEffect(() => {
-        let isMounted = true;
-        const loadTeacherClasses = async () => {
-            if (!isOpen || !user?.id) return;
-            try {
-                setLoadingClasses(true);
-                const data = await teacherSubjectAssignService.getByTeacherId(user.id);
-                if (isMounted && data) {
-                    const uniqueClasses = (data.assigns as TeacherAssignData[])
-                        .reduce((acc: ClassOption[], curr: TeacherAssignData) => {
-                            if (!acc.some((item) => item.id === curr.classId)) {
-                                acc.push({
-                                    id: curr.classId,
-                                    name: curr.className,
-                                });
-                            }
-                            return acc;
-                        }, []);
-                    setTeacherClasses(uniqueClasses);
+        if (assignment && isOpen && user?.id) {
+            setLoading(true);
+            setExistingFileUrl(assignment.attachmentUrl || "");
+            const loadData = async () => {
+                try {
+                    const data = await teacherSubjectAssignService.getByTeacherId(user.id);
+                    if (data) {
+                        const uniqueClasses = (data.assigns as TeacherAssignData[])
+                            .reduce((acc: ClassOption[], curr: TeacherAssignData) => {
+                                if (!acc.some((item) => item.id === curr.classId)) {
+                                    acc.push({ id: curr.classId, name: curr.className });
+                                }
+                                return acc;
+                            }, []);
+                        setTeacherClasses(uniqueClasses);
+                        const subjects = (data.assigns as TeacherAssignData[])
+                            .filter((a: TeacherAssignData) => a.classId === assignment.classId)
+                            .map((a: TeacherAssignData) => ({ id: a.subjectId, name: a.subjectName }));
+                        setAvailableSubjects(subjects);
+                        reset({
+                            classId: assignment.classId,
+                            subjectId: assignment.subjectId,
+                            title: assignment.title,
+                            description: assignment.description || "",
+                            totalMarks: assignment.totalMarks || undefined,
+                            dueDate: assignment.dueDate ? assignment.dueDate.split("T")[0] : "",
+                            status: (assignment.status as "Draft" | "Published" | "Closed") || "Published",
+                            isActive: assignment.isActive ?? true,
+                            attachmentUrl: assignment.attachmentUrl || "",
+                        });
+                    }
+                } catch (err) {
+                    console.error("Failed to load data:", err);
+                } finally {
+                    setLoading(false);
                 }
-            } catch (err) {
-                if (isMounted) console.error("Failed to load classes:", err);
-            } finally {
-                if (isMounted) setLoadingClasses(false);
-            }
-        };
-        loadTeacherClasses();
-        return () => { isMounted = false; };
-    }, [isOpen, user?.id]);
+            };
+            loadData();
+        }
+    }, [assignment, isOpen, user?.id, reset]);
 
     useEffect(() => {
-        let isMounted = true;
+        if (selectedStatus === "Closed") setValue("isActive", false);
+        else setValue("isActive", true);
+    }, [selectedStatus, setValue]);
+
+    useEffect(() => {
+        if (!selectedClassId) { setAvailableSubjects([]); return; }
         const loadSubjects = async () => {
-            if (!selectedClassId || !user?.id) {
-                setAvailableSubjects([]);
-                return;
-            }
             try {
-                const data = await teacherSubjectAssignService.getByTeacherId(user.id);
-                if (isMounted && data) {
+                const data = await teacherSubjectAssignService.getByTeacherId(user!.id);
+                if (data) {
                     const subjects = (data.assigns as TeacherAssignData[])
                         .filter((a: TeacherAssignData) => a.classId === selectedClassId)
-                        .map((a: TeacherAssignData) => ({
-                            id: a.subjectId,
-                            name: a.subjectName,
-                        }));
+                        .map((a: TeacherAssignData) => ({ id: a.subjectId, name: a.subjectName }));
                     setAvailableSubjects(subjects);
                 }
             } catch (err) {
-                if (isMounted) console.error("Failed to load subjects:", err);
+                console.error("Failed to load subjects:", err);
             }
         };
         loadSubjects();
-        return () => { isMounted = false; };
     }, [selectedClassId, user?.id]);
-
-    useEffect(() => {
-        if (assignment && isOpen) {
-            setLoading(true);
-            reset({
-                classId: assignment.classId,
-                subjectId: assignment.subjectId,
-                title: assignment.title,
-                description: assignment.description || "",
-                totalMarks: assignment.totalMarks || undefined,
-                dueDate: assignment.dueDate ? assignment.dueDate.split("T")[0] : "",
-                status: (assignment.status as "Draft" | "Published" | "Closed") || "Published",
-                isActive: assignment.isActive ?? true,
-                attachmentUrl: assignment.attachmentUrl || "",
-            });
-            setLoading(false);
-        }
-    }, [assignment, isOpen, reset]);
-
-    useEffect(() => {
-        if (selectedStatus === "Closed") {
-            setValue("isActive", false);
-        } else {
-            setValue("isActive", true);
-        }
-    }, [selectedStatus, setValue]);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -182,11 +149,11 @@ export default function EditAssignmentDrawer({ isOpen, onClose, onSuccess, assig
         try {
             const formData = new FormData();
             formData.append("file", selectedFile);
-            const response = await apiClient.post("/Upload", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
+
+            const response = await apiClient.post("/Upload?type=assignment", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
             });
+
             return response.data.fileUrl;
         } catch (error) {
             console.error("Upload error:", error);
@@ -200,15 +167,11 @@ export default function EditAssignmentDrawer({ isOpen, onClose, onSuccess, assig
         try {
             setIsSubmitting(true);
             setError(null);
-
-            let attachmentUrl = data.attachmentUrl || "";
+            let attachmentUrl = existingFileUrl;
             if (selectedFile) {
                 const uploadedUrl = await uploadFile();
-                if (uploadedUrl) {
-                    attachmentUrl = uploadedUrl;
-                }
+                if (uploadedUrl) attachmentUrl = uploadedUrl;
             }
-
             const payload = {
                 id: assignment.id,
                 classId: data.classId,
@@ -221,28 +184,23 @@ export default function EditAssignmentDrawer({ isOpen, onClose, onSuccess, assig
                 isActive: data.isActive,
                 attachmentUrl: attachmentUrl,
             };
-
             await assignmentService.update(payload);
             reset();
             setSelectedFile(null);
             setFileName("");
-            if (fileInputRef.current) {
-                fileInputRef.current.value = "";
-            }
+            setExistingFileUrl("");
+            if (fileInputRef.current) fileInputRef.current.value = "";
             onSuccess();
             onClose();
         } catch (error) {
-            const errorMessage =
-                error && typeof error === 'object' && 'response' in error && error.response &&
+            const errorMessage = error && typeof error === 'object' && 'response' in error && error.response &&
                 typeof error.response === 'object' && 'data' in error.response && error.response.data &&
                 typeof error.response.data === 'object' && 'message' in error.response.data
-                    ? String(error.response.data.message)
-                    : error instanceof Error ? error.message : "Failed to update assignment.";
+                ? String(error.response.data.message)
+                : error instanceof Error ? error.message : "Failed to update assignment.";
             setError(errorMessage);
             console.error("❌ Update Assignment Error:", error);
-        } finally {
-            setIsSubmitting(false);
-        }
+        } finally { setIsSubmitting(false); }
     };
 
     if (!isOpen) return null;
@@ -258,13 +216,7 @@ export default function EditAssignmentDrawer({ isOpen, onClose, onSuccess, assig
                     </button>
                 </div>
                 <div className="flex-grow-1 overflow-auto p-4">
-                    {loading && (
-                        <div className="text-center py-4">
-                            <div className="spinner-border text-primary" role="status">
-                                <span className="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
-                    )}
+                    {loading && <div className="text-center py-4"><div className="spinner-border text-primary" role="status"><span className="visually-hidden">Loading...</span></div></div>}
                     {error && <div className="alert alert-danger py-2" role="alert">{error}</div>}
                     {!loading && (
                         <form id="editAssignmentForm" onSubmit={handleSubmit(onSubmit)}>
@@ -272,104 +224,74 @@ export default function EditAssignmentDrawer({ isOpen, onClose, onSuccess, assig
                                 <label className="form-label fw-semibold">Class</label>
                                 <select className="form-select" {...register("classId")} disabled={loadingClasses}>
                                     <option value="">Select Class</option>
-                                    {teacherClasses.map((cls) => (
-                                        <option key={cls.id} value={cls.id}>{cls.name}</option>
-                                    ))}
+                                    {teacherClasses.map((cls) => <option key={cls.id} value={cls.id}>{cls.name}</option>)}
                                 </select>
                                 {errors.classId && <small className="text-danger">{getErrorMessage(errors.classId)}</small>}
                             </div>
-
                             <div className="mb-3">
                                 <label className="form-label fw-semibold">Subject</label>
                                 <select className="form-select" {...register("subjectId")} disabled={!selectedClassId}>
                                     <option value="">Select Subject</option>
-                                    {availableSubjects.map((sub) => (
-                                        <option key={sub.id} value={sub.id}>{sub.name}</option>
-                                    ))}
+                                    {availableSubjects.map((sub) => <option key={sub.id} value={sub.id}>{sub.name}</option>)}
                                 </select>
                                 {errors.subjectId && <small className="text-danger">{getErrorMessage(errors.subjectId)}</small>}
                             </div>
-
                             <div className="mb-3">
                                 <label className="form-label fw-semibold">Title</label>
                                 <input type="text" className="form-control" placeholder="Enter assignment title" {...register("title")} />
                                 {errors.title && <small className="text-danger">{getErrorMessage(errors.title)}</small>}
                             </div>
-
                             <div className="mb-3">
                                 <label className="form-label fw-semibold">Description</label>
                                 <textarea className="form-control" rows={3} placeholder="Enter description" {...register("description")} />
                                 {errors.description && <small className="text-danger">{getErrorMessage(errors.description)}</small>}
                             </div>
-
                             <div className="mb-3">
                                 <label className="form-label fw-semibold">Total Marks</label>
                                 <input type="number" className="form-control" placeholder="Enter total marks" step="1" min="0" {...register("totalMarks")} />
                                 {errors.totalMarks && <small className="text-danger">{getErrorMessage(errors.totalMarks)}</small>}
                             </div>
-
                             <div className="mb-3">
                                 <label className="form-label fw-semibold">Due Date</label>
                                 <input type="date" className="form-control" {...register("dueDate")} min={new Date().toISOString().split("T")[0]} />
                                 {errors.dueDate && <small className="text-danger">{getErrorMessage(errors.dueDate)}</small>}
                             </div>
-
                             <div className="mb-3">
                                 <label className="form-label fw-semibold">Status</label>
                                 <div className="d-flex gap-3">
-                                    <div className="form-check">
-                                        <input className="form-check-input" type="radio" value="Draft" {...register("status")} />
-                                        <label className="form-check-label">Draft</label>
-                                    </div>
-                                    <div className="form-check">
-                                        <input className="form-check-input" type="radio" value="Published" {...register("status")} />
-                                        <label className="form-check-label">Published</label>
-                                    </div>
-                                    <div className="form-check">
-                                        <input className="form-check-input" type="radio" value="Closed" {...register("status")} />
-                                        <label className="form-check-label">Closed</label>
-                                    </div>
+                                    <div className="form-check"><input className="form-check-input" type="radio" value="Draft" {...register("status")} /><label className="form-check-label">Draft</label></div>
+                                    <div className="form-check"><input className="form-check-input" type="radio" value="Published" {...register("status")} /><label className="form-check-label">Published</label></div>
+                                    <div className="form-check"><input className="form-check-input" type="radio" value="Closed" {...register("status")} /><label className="form-check-label">Closed</label></div>
                                 </div>
                                 {errors.status && <small className="text-danger">{getErrorMessage(errors.status)}</small>}
                             </div>
-
                             <div className="mb-3">
                                 <label className="form-label fw-semibold">Active Status</label>
                                 <div className="d-flex align-items-center gap-3">
-                                    <div className="form-check form-switch">
-                                        <input className="form-check-input" type="checkbox" role="switch" disabled checked={watch("isActive")} />
-                                    </div>
-                                    <span className="badge" style={{ backgroundColor: watch("isActive") ? "var(--success-color)" : "var(--danger-color)" }}>
-                                        {watch("isActive") ? "Active" : "Inactive"}
-                                    </span>
+                                    <div className="form-check form-switch"><input className="form-check-input" type="checkbox" role="switch" disabled checked={watch("isActive")} /></div>
+                                    <span className="badge" style={{ backgroundColor: watch("isActive") ? "var(--success-color)" : "var(--danger-color)" }}>{watch("isActive") ? "Active" : "Inactive"}</span>
                                 </div>
                                 <small className="text-muted d-block">Status is automatically updated based on selection.</small>
                             </div>
-
                             <div className="mb-3">
                                 <label className="form-label fw-semibold">Attachment</label>
+                                {existingFileUrl && (
+                                    <div className="mb-2">
+                                        <span className="text-muted small">Current file: </span>
+                                        <a href={existingFileUrl} target="_blank" rel="noopener noreferrer" className="text-primary d-inline-flex align-items-center text-decoration-none gap-1">
+                                            <FileText size={14} />
+                                            {getDisplayFileName(existingFileUrl)}
+                                        </a>
+                                    </div>
+                                )}
                                 <div className="input-group">
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        className="form-control"
-                                        onChange={handleFileChange}
-                                        style={{ padding: "6px 12px" }}
-                                    />
-                                    <button
-                                        type="button"
-                                        className="btn btn-outline-secondary"
-                                        onClick={() => fileInputRef.current?.click()}
-                                    >
+                                    <input ref={fileInputRef} type="file" className="form-control" onChange={handleFileChange} style={{ padding: "6px 12px" }} />
+                                    <button type="button" className="btn btn-outline-secondary" onClick={() => fileInputRef.current?.click()}>
                                         <Upload size={16} /> Browse
                                     </button>
                                 </div>
-                                {fileName && (
-                                    <small className="text-success d-block mt-1">
-                                        ✅ Selected: {fileName}
-                                    </small>
-                                )}
-                                <small className="text-muted d-block">Max file size: 200MB</small>
+                                {fileName && <small className="text-success d-block mt-1">✅ Selected: {fileName}</small>}
+                                <small className="text-muted d-block">Max file size: 200MB (Leave empty to keep existing file)</small>
                             </div>
                         </form>
                     )}
@@ -377,8 +299,7 @@ export default function EditAssignmentDrawer({ isOpen, onClose, onSuccess, assig
                 <div className="p-4 border-top d-flex justify-content-end gap-2">
                     <button type="button" className="btn" onClick={onClose} style={{ border: "1px solid var(--border-color)" }}>Cancel</button>
                     <button type="submit" form="editAssignmentForm" className="btn d-flex align-items-center gap-2" disabled={isSubmitting || loading} style={{ backgroundColor: "var(--primary-color)", color: "white", border: "none" }}>
-                        <Save size={16} />
-                        {isSubmitting ? "Updating..." : "Update Assignment"}
+                        <Save size={16} /> {isSubmitting ? "Updating..." : "Update Assignment"}
                     </button>
                 </div>
             </div>

@@ -104,7 +104,7 @@ export default function StudentClassAssignPage() {
     return (
         <div className="container-fluid">
             <div className="d-flex justify-content-between align-items-center mb-4">
-                <h4 className="fw-bold" style={{ color: "var(--dark-color)" }}>📚 Student Class Assignment</h4>
+                <h4 className="fw-bold" style={{ color: "var(--dark-color)" }}>📚 Student Class Enrollment </h4>
                 <button type="button" className="btn d-flex align-items-center gap-2" onClick={() => { setEditStudent(null); setIsDrawerOpen(true); }} style={{ backgroundColor: "var(--primary-color)", color: "#fff", borderRadius: "var(--border-radius)", padding: "8px 20px", border: "none", transition: "var(--transition)" }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--primary-hover)")} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "var(--primary-color)")}>
                     <Plus size={18} /> Assign New
                 </button>

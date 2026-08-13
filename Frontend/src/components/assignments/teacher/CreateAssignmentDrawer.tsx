@@ -26,8 +26,6 @@ interface SubjectOption {
    name: string;
 }
 
-// ✅ Helper function to safely get error message
-// ✅ Fixed: Use unknown instead of any
 const getErrorMessage = (error: unknown): string => {
    if (!error) return '';
    if (typeof error === 'string') return error;
@@ -157,24 +155,22 @@ export default function CreateAssignmentDrawer({ isOpen, onClose, onSuccess }: C
    };
 
    const uploadFile = async (): Promise<string | null> => {
-    if (!selectedFile) return null;
-    try {
-        const formData = new FormData();
-        formData.append("file", selectedFile);
+      if (!selectedFile) return null;
+      try {
+         const formData = new FormData();
+         formData.append("file", selectedFile);
 
-        const response = await apiClient.post("/Upload", formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-        });
+         const response = await apiClient.post("/Upload?type=assignment", formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+         });
 
-        return response.data.fileUrl;
-    } catch (error) {
-        console.error("Upload error:", error);
-        setError("Failed to upload file.");
-        return null;
-    }
-};
+         return response.data.fileUrl;
+      } catch (error) {
+         console.error("Upload error:", error);
+         setError("Failed to upload file.");
+         return null;
+      }
+   };
 
    const onSubmit = async (data: CreateAssignmentFormData) => {
       try {

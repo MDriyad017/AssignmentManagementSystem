@@ -1,5 +1,5 @@
 "use client";
-import { Assignment } from "@/types/assignment";
+import { Assignment } from "@/types/teacherAssignment";
 import { Eye, Pencil, Trash2, FileText } from "lucide-react";
 import Swal from "sweetalert2";
 

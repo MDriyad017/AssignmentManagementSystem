@@ -1,15 +1,16 @@
 "use client";
 import { X, FileText, Download, Eye } from "lucide-react";
 import { useState } from "react";
-import { Assignment } from "@/types/assignment";
+import { StudentAssignment } from "@/types/studentAssignment";
+import { getDisplayFileName } from "@/utils/fileUtils";
 
-interface AssignmentViewModalProps {
+interface StudentAssignmentViewModalProps {
     isOpen: boolean;
     onClose: () => void;
-    assignment: Assignment | null;
+    assignment: StudentAssignment | null;
 }
 
-export default function AssignmentViewModal({ isOpen, onClose, assignment }: AssignmentViewModalProps) {
+export default function StudentAssignmentViewModal({ isOpen, onClose, assignment }: StudentAssignmentViewModalProps) {
     const [previewOpen, setPreviewOpen] = useState(false);
     if (!isOpen || !assignment) return null;
 
@@ -51,19 +52,13 @@ export default function AssignmentViewModal({ isOpen, onClose, assignment }: Ass
                     </button>
                 </div>
                 <div className="flex-grow-1 overflow-auto p-4">
-                    {assignment.description && (
-                        <div className="mb-3">
-                            <label className="fw-semibold text-muted" style={{ fontSize: "13px" }}>Description</label>
-                            <p className="mb-0" style={{ whiteSpace: "pre-wrap" }}>{assignment.description}</p>
-                        </div>
-                    )}
                     <div className="table-responsive">
                         <table className="table table-bordered" style={{ fontSize: "14px" }}>
-                            <thead>
+                            <thead style={{ backgroundColor: "var(--primary-color)", color: "#fff" }}>
                                 <tr>
-                                    <th style={{ padding: "5px 5px", fontWeight: "600", textAlign: "center", width: "33.33%"}}>Title</th>
-                                    <th style={{ padding: "5px 5px", fontWeight: "600", textAlign: "center", width: "33.33%"}}>Subject</th>
-                                    <th style={{ padding: "5px 5px", fontWeight: "600", textAlign: "center", width: "33.33%"}}>Total Marks</th>
+                                    <th style={{ padding: "5px 5px", fontWeight: "600", textAlign: "center" }}>Title</th>
+                                    <th style={{ padding: "5px 5px", fontWeight: "600", textAlign: "center" }}>Subject</th>
+                                    <th style={{ padding: "5px 5px", fontWeight: "600", textAlign: "center" }}>Total Marks</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -75,6 +70,12 @@ export default function AssignmentViewModal({ isOpen, onClose, assignment }: Ass
                             </tbody>
                         </table>
                     </div>
+                    {assignment.description && (
+                        <div className="mb-3">
+                            <label className="fw-semibold text-muted" style={{ fontSize: "13px" }}>Description</label>
+                            <p className="mb-0" style={{ whiteSpace: "pre-wrap" }}>{assignment.description}</p>
+                        </div>
+                    )}
                     {assignment.attachmentUrl && (
                         <div className="mt-3">
                             <label className="fw-semibold text-muted d-block mb-2" style={{ fontSize: "13px" }}>Attachment</label>
@@ -87,7 +88,7 @@ export default function AssignmentViewModal({ isOpen, onClose, assignment }: Ass
                                             <Eye size={14} /> Preview
                                         </button>
                                     )} */}
-                                    <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline-success d-flex align-items-center gap-1" download>
+                                    <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1" download>
                                         <Download size={14} /> Preview
                                     </a>
                                 </div>
