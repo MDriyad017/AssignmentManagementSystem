@@ -2,6 +2,8 @@
 using AssignmentManagementSystem.BusinessLogicLayer.Entities;
 using AssignmentManagementSystem.BusinessLogicLayer.Interfaces.IRepositories;
 using AssignmentManagementSystem.BusinessLogicLayer.Interfaces.IServices;
+using Microsoft.AspNetCore.Hosting;  
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,14 +19,28 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
         private readonly ISubjectRepository _subjectRepository;
         private readonly IClassRepository _classRepository;
         private readonly ITeacherSubjectAssignRepository _teacherSubjectRepository;
+        private readonly IStudentClassAssignRepository _studentClassAssignRepository;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public AssignmentService(IAssignmentRepository repository, IUserRepository userRepository, ISubjectRepository subjectRepository, IClassRepository classRepository, ITeacherSubjectAssignRepository teacherSubjectRepository)
+        public AssignmentService(IAssignmentRepository repository, IUserRepository userRepository, ISubjectRepository subjectRepository, IClassRepository classRepository,
+            ITeacherSubjectAssignRepository teacherSubjectRepository, IStudentClassAssignRepository studentClassAssignRepository, IWebHostEnvironment webHostEnvironment)
         {
             _repository = repository;
             _userRepository = userRepository;
             _subjectRepository = subjectRepository;
             _classRepository = classRepository;
             _teacherSubjectRepository = teacherSubjectRepository;
+            _studentClassAssignRepository = studentClassAssignRepository;
+            _webHostEnvironment = webHostEnvironment;
+        }
+
+        private void DeleteAssignmentFile(string? fileUrl)
+        {
+            if (string.IsNullOrEmpty(fileUrl)) return;
+            var fileName = Path.GetFileName(fileUrl);
+            var folderPath = Path.Combine("Assignment", "TeacherAssignment");
+            var fullPath = Path.Combine(_webHostEnvironment.WebRootPath ?? "wwwroot", folderPath, fileName);
+            if (File.Exists(fullPath)) File.Delete(fullPath);
         }
 
         public async Task<AssignmentResponseDto?> GetByIdAsync(Guid id)
@@ -55,6 +71,19 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
         {
             var entities = await _repository.GetPublishedAssignmentsAsync();
             return entities.Select(MapToResponseDto);
+        }
+
+        public async Task<IEnumerable<AssignmentResponseDto>> GetByStudentIdAsync(Guid studentId)
+        {
+            var studentClass = await _studentClassAssignRepository.GetByStudentIdAsync(studentId);
+            var classId = studentClass.FirstOrDefault()?.ClassId;
+            if (classId == null)
+                return new List<AssignmentResponseDto>();
+
+            var entities = await _repository.GetByClassIdAsync(classId.Value);
+            return entities
+                .Where(x => x.Status == "Published")
+                .Select(MapToResponseDto);
         }
 
         public async Task<AssignmentResponseDto> CreateAsync(AssignmentCreateDto dto)
@@ -115,6 +144,11 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
             if (existing == null)
                 throw new Exception("Assignment not found.");
 
+            if (!string.IsNullOrEmpty(dto.AttachmentUrl) && !string.IsNullOrEmpty(existing.AttachmentUrl) && existing.AttachmentUrl != dto.AttachmentUrl)
+            {
+                DeleteAssignmentFile(existing.AttachmentUrl);
+            }
+
             var subject = await _subjectRepository.GetByIdAsync(dto.SubjectId);
             if (subject == null)
                 throw new Exception("Subject not found.");
@@ -154,6 +188,8 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null)
                 throw new Exception("Assignment not found.");
+
+            DeleteAssignmentFile(entity.AttachmentUrl);
 
             _repository.Delete(entity);
             await _repository.SaveChangesAsync();

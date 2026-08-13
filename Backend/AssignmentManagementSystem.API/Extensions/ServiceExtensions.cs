@@ -20,7 +20,7 @@ namespace AssignmentManagementSystem.API.Extensions
             services.AddScoped<ITeacherSubjectAssignRepository, TeacherSubjectAssignRepository>();
             services.AddScoped<IStudentClassAssignRepository, StudentClassAssignRepository>();
             services.AddScoped<IAssignmentRepository, AssignmentRepository>();
-
+            services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 
 
 
@@ -33,6 +33,7 @@ namespace AssignmentManagementSystem.API.Extensions
             services.AddScoped<ITeacherSubjectAssignService, TeacherSubjectAssignService>();
             services.AddScoped<IStudentClassAssignService, StudentClassAssignService>();
             services.AddScoped<IAssignmentService, AssignmentService>();
+            services.AddScoped<ISubmissionService, SubmissionService>();
 
 
             return services;

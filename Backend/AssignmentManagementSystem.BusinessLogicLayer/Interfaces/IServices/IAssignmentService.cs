@@ -12,6 +12,7 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.Interfaces.IServices
         Task<AssignmentResponseDto?> GetByIdAsync(Guid id);
         Task<IEnumerable<AssignmentResponseDto>> GetAllAsync();
         Task<IEnumerable<AssignmentResponseDto>> GetByTeacherIdAsync(Guid teacherId);
+        Task<IEnumerable<AssignmentResponseDto>> GetByStudentIdAsync(Guid studentId);
         Task<IEnumerable<AssignmentResponseDto>> GetByClassIdAsync(Guid classId);
         Task<IEnumerable<AssignmentResponseDto>> GetPublishedAsync();
         Task<AssignmentResponseDto> CreateAsync(AssignmentCreateDto dto);

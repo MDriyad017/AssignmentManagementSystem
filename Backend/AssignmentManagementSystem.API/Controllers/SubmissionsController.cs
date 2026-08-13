@@ -1,4 +1,5 @@
-﻿using AssignmentManagementSystem.BusinessLogicLayer.DTOs.Assignment;
+﻿using AssignmentManagementSystem.BusinessLogicLayer.DTOs.Submission;
+using AssignmentManagementSystem.BusinessLogicLayer.Enums;
 using AssignmentManagementSystem.BusinessLogicLayer.Interfaces.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -8,11 +9,11 @@ namespace AssignmentManagementSystem.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AssignmentsController : ControllerBase
+    public class SubmissionsController : ControllerBase
     {
-        private readonly IAssignmentService _service;
+        private readonly ISubmissionService _service;
 
-        public AssignmentsController(IAssignmentService service)
+        public SubmissionsController(ISubmissionService service)
         {
             _service = service;
         }
@@ -40,7 +41,54 @@ namespace AssignmentManagementSystem.API.Controllers
             {
                 var result = await _service.GetByIdAsync(id);
                 if (result == null)
-                    return NotFound(new { Success = false, Message = "Assignment not found." });
+                    return NotFound(new { Success = false, Message = "Submission not found." });
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Success = false, Message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("CGS001")]
+        public async Task<IActionResult> GetByAssignmentAndStudent(Guid assignmentId, Guid studentId)
+        {
+            try
+            {
+                var result = await _service.GetByAssignmentAndStudentAsync(assignmentId, studentId);
+                if (result == null)
+                    return NotFound(new { Success = false, Message = "Submission not found." });
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Success = false, Message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("CGA001")]
+        public async Task<IActionResult> GetByAssignmentId(Guid assignmentId)
+        {
+            try
+            {
+                var result = await _service.GetByAssignmentIdAsync(assignmentId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Success = false, Message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("CGSID001")]
+        public async Task<IActionResult> GetByStudentId(Guid studentId)
+        {
+            try
+            {
+                var result = await _service.GetByStudentIdAsync(studentId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -64,48 +112,18 @@ namespace AssignmentManagementSystem.API.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("CGC001")]
-        public async Task<IActionResult> GetByClassId(Guid classId)
-        {
-            try
-            {
-                var result = await _service.GetByClassIdAsync(classId);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Success = false, Message = ex.Message });
-            }
-        }
-
-        [HttpGet]
-        [Route("CGS001")]
-        public async Task<IActionResult> GetByStudentId([FromQuery] Guid studentId)
-        {
-            try
-            {
-                var result = await _service.GetByStudentIdAsync(studentId);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Success = false, Message = ex.Message });
-            }
-        }
-
-        [Authorize(Roles = "Teacher")]
+        [Authorize(Roles = nameof(UserRole.Student))]
         [HttpPost]
-        [Route("CA001")]
-        public async Task<IActionResult> Create(AssignmentCreateDto dto)
+        [Route("CS001")]
+        public async Task<IActionResult> Submit(SubmissionCreateDto dto)
         {
             try
             {
-                var result = await _service.CreateAsync(dto);
+                var result = await _service.SubmitAsync(dto);
                 return Ok(new
                 {
                     Success = true,
-                    Message = "Assignment created successfully.",
+                    Message = "Assignment submitted successfully.",
                     Data = result
                 });
             }
@@ -115,18 +133,18 @@ namespace AssignmentManagementSystem.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Teacher")]
+        [Authorize(Roles = nameof(UserRole.Teacher))]
         [HttpPost]
-        [Route("CU001")]
-        public async Task<IActionResult> Update(AssignmentUpdateDto dto)
+        [Route("CG001")]
+        public async Task<IActionResult> Grade(SubmissionGradeDto dto)
         {
             try
             {
-                var result = await _service.UpdateAsync(dto);
+                var result = await _service.GradeAsync(dto);
                 return Ok(new
                 {
                     Success = true,
-                    Message = "Assignment updated successfully.",
+                    Message = "Submission graded successfully.",
                     Data = result
                 });
             }
@@ -136,7 +154,7 @@ namespace AssignmentManagementSystem.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Teacher")]
+        [Authorize(Roles = nameof(UserRole.Teacher) + "," + nameof(UserRole.Admin))]
         [HttpPost]
         [Route("CD001")]
         public async Task<IActionResult> Delete(Guid id)
@@ -144,7 +162,7 @@ namespace AssignmentManagementSystem.API.Controllers
             try
             {
                 await _service.DeleteAsync(id);
-                return Ok(new { Success = true, Message = "Assignment deleted successfully." });
+                return Ok(new { Success = true, Message = "Submission deleted successfully." });
             }
             catch (Exception ex)
             {
