@@ -59,6 +59,8 @@ namespace AssignmentManagementSystem.DataAccessLayer.Repositories
         {
             return await _context.Submissions
                 .Include(x => x.Assignment)
+                .Include(x => x.Student)
+                .Include(x => x.GradedbyNavigation)
                 .Where(x => x.StudentId == studentId)
                 .OrderByDescending(x => x.SubmittedAt)
                 .ToListAsync();
