@@ -1,5 +1,3 @@
-// Frontend/src/components/studentClasses/StudentClassAssignTable.tsx
-
 "use client";
 import { StudentGroup } from "@/types/studentClassAssign";
 import { Eye, Trash2, Pencil } from "lucide-react";

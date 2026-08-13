@@ -48,7 +48,6 @@ a {
   }
 }
 
-/* Add this at the end of the file */
 .btn-brand {
     background: var(--primary-color) !important;
     border-color: var(--primary-color) !important;

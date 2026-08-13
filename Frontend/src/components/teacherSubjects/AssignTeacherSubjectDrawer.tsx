@@ -33,7 +33,6 @@ export default function AssignTeacherSubjectDrawer({ isOpen, onClose, onSuccess 
     const [selectedTeacherId, setSelectedTeacherId] = useState<string>("");
     const [assigns, setAssigns] = useState<AssignRow[]>([]);
     const [existingAssigns, setExistingAssigns] = useState<{ subjectId: string; classId: string }[]>([]);
-    // ✅ All assignments (for checking subject availability across all teachers)
     const [allAssigns, setAllAssigns] = useState<{ subjectId: string; classId: string }[]>([]);
 
     useEffect(() => {
@@ -59,7 +58,6 @@ export default function AssignTeacherSubjectDrawer({ isOpen, onClose, onSuccess 
         return () => { isMounted = false; };
     }, [isOpen]);
 
-    // ✅ Load all assignments for subject availability check
     useEffect(() => {
         let isMounted = true;
         const loadAllAssigns = async () => {
@@ -84,7 +82,6 @@ export default function AssignTeacherSubjectDrawer({ isOpen, onClose, onSuccess 
         return () => { isMounted = false; };
     }, [isOpen]);
 
-    // ✅ Load existing assignments for selected teacher
     useEffect(() => {
         let isMounted = true;
         const loadExistingAssigns = async () => {
@@ -122,15 +119,12 @@ export default function AssignTeacherSubjectDrawer({ isOpen, onClose, onSuccess 
         setAssigns(assigns.filter((row) => row.id !== id));
     };
 
-    // ✅ Check if subject is already assigned to ANY teacher (except current teacher)
     const isSubjectAlreadyAssignedToAnyTeacher = (classId: string, subjectId: string, currentRowId: string) => {
-        // Check if any teacher (other than current selected) has this subject assigned
         const assignedToOther = allAssigns.some(
             (a) => a.subjectId === subjectId && a.classId === classId
         );
         if (assignedToOther) return true;
 
-        // Check in current batch (excluding current row)
         const inBatch = assigns.some(
             (row) => row.id !== currentRowId && row.classId === classId && row.subjectId === subjectId
         );
@@ -256,12 +250,11 @@ export default function AssignTeacherSubjectDrawer({ isOpen, onClose, onSuccess 
                                                     <select className="form-select form-select-sm" value={row.subjectId} onChange={(e) => updateRow(row.id, "subjectId", e.target.value)}>
                                                         <option value="">Select Subject</option>
                                                         {row.availableSubjects.map((sub) => {
-                                                            // ✅ Check if subject is already assigned to ANY teacher
                                                             const isAssigned = isSubjectAlreadyAssignedToAnyTeacher(row.classId, sub.id, row.id);
                                                             return (
                                                                 <option key={sub.id} value={sub.id} disabled={isAssigned}>
                                                                     {sub.name} {sub.code ? `(${sub.code})` : ""}
-                                                                    {isAssigned ? " (Already Assigned to Another Teacher)" : ""}
+                                                                    {isAssigned ? " (Already Assigned)" : ""}
                                                                 </option>
                                                             );
                                                         })}

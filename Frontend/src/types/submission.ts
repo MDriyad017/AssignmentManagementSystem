@@ -1,5 +1,3 @@
-// Frontend/src/types/submission.ts
-
 export interface Submission {
     id: string;
     assignmentId: string;
@@ -10,7 +8,7 @@ export interface Submission {
     submissionText?: string;
     submissionFileUrl?: string;
     submittedAt: string;
-    status: string; // Submitted, Late, Graded, Rejected
+    status: string;
     marksObtained?: number;
     feedback?: string;
     gradedAt?: string;

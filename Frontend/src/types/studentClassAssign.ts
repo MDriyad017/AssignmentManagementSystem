@@ -1,5 +1,3 @@
-// Frontend/src/types/studentClassAssign.ts
-
 export interface StudentClassAssign {
     id: string;
     studentId: string;
@@ -18,7 +16,6 @@ export interface StudentGroup {
     class: StudentClassAssign | null;
 }
 
-// ✅ Updated: Each Teacher has multiple Subjects
 export interface SubjectDetail {
     subjectId: string;
     subjectName: string;

@@ -17,39 +17,30 @@ export default function TeacherClassesAndSubjectsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [classDetails, setClassDetails] = useState<TeacherClassDetail[]>([]);
-    // ✅ Remove debugData state - not needed
 
     useEffect(() => {
         let isMounted = true;
         const loadData = async () => {
             if (!user?.id) {
-                console.log("🔴 No user ID found");
                 setLoading(false);
                 return;
             }
-            
-            console.log("🔵 User ID:", user.id);
             
             try {
                 setLoading(true);
                 setError(null);
                 
-                console.log("🔵 Calling getByTeacherId with:", user.id);
                 const data = await teacherSubjectAssignService.getByTeacherId(user.id);
-                console.log("✅ Raw API Response:", data);
 
                 if (isMounted && data) {
-                    console.log("🔵 Data.assigns:", data.assigns);
                     
                     if (!data.assigns || data.assigns.length === 0) {
-                        console.log("⚠️ No assignments found for this teacher");
                         setClassDetails([]);
                         setLoading(false);
                         return;
                     }
 
                     const grouped = data.assigns.reduce((acc: TeacherClassDetail[], assign) => {
-                        console.log("🔵 Processing assign:", assign);
                         const existing = acc.find((c) => c.classId === assign.classId);
                         if (existing) {
                             existing.subjects.push({
@@ -69,11 +60,10 @@ export default function TeacherClassesAndSubjectsPage() {
                         return acc;
                     }, []);
                     
-                    console.log("✅ Grouped Data:", grouped);
                     setClassDetails(grouped);
                 }
             } catch (err) {
-                console.error("❌ Error:", err);
+                console.error("Error:", err);
                 if (isMounted) {
                     const errorMessage = err instanceof Error ? err.message : "Failed to load data";
                     setError(errorMessage);

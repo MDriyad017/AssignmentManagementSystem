@@ -1,5 +1,3 @@
-// Frontend/src/components/studentClasses/AssignStudentClassDrawer.tsx
-
 "use client";
 import { X, Save } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -14,7 +12,7 @@ interface AssignStudentClassDrawerProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: () => void;
-    editStudent?: StudentGroup | null;  // ✅ For edit mode
+    editStudent?: StudentGroup | null; 
 }
 
 export default function AssignStudentClassDrawer({ isOpen, onClose, onSuccess, editStudent }: AssignStudentClassDrawerProps) {
@@ -47,10 +45,8 @@ export default function AssignStudentClassDrawer({ isOpen, onClose, onSuccess, e
         return () => { isMounted = false; };
     }, [isOpen]);
 
-    // ✅ Load edit data
     useEffect(() => {
         if (editStudent && isOpen) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setSelectedStudentId(editStudent.studentId);
             setSelectedClassId(editStudent.class?.classId || "");
             setEditId(editStudent.class?.id || null);
@@ -75,14 +71,12 @@ export default function AssignStudentClassDrawer({ isOpen, onClose, onSuccess, e
             setError(null);
 
             if (editId) {
-                // ✅ Update existing assignment
                 await studentClassAssignService.update({
                     id: editId,
                     studentId: selectedStudentId,
                     classId: selectedClassId,
                 });
             } else {
-                // ✅ Create new assignment
                 await studentClassAssignService.assign({
                     studentId: selectedStudentId,
                     classId: selectedClassId,

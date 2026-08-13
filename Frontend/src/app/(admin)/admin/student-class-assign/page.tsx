@@ -1,5 +1,3 @@
-// Frontend/src/app/(admin)/admin/student-class-assign/page.tsx
-
 "use client";
 import { useState, useEffect } from "react";
 import { Plus, Search } from "lucide-react";

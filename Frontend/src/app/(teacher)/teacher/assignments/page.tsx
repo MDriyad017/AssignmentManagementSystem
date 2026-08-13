@@ -16,7 +16,7 @@ export default function TeacherAssignmentsPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState(false);
     const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
-    const [isViewModalOpen, setIsViewModalOpen] = useState(false);  // ✅ View Modal State
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
 
     useEffect(() => {
@@ -56,19 +56,16 @@ export default function TeacherAssignmentsPage() {
         reload();
     };
 
-    // ✅ View Handler
     const handleView = (assignment: Assignment) => {
         setSelectedAssignment(assignment);
         setIsViewModalOpen(true);
     };
 
-    // ✅ Edit Handler
     const handleEdit = (assignment: Assignment) => {
         setSelectedAssignment(assignment);
         setIsEditDrawerOpen(true);
     };
 
-    // ✅ Delete Handler
     const handleDelete = async (id: string) => {
         await assignmentService.delete(id);
         handleSuccess();
@@ -101,9 +98,9 @@ export default function TeacherAssignmentsPage() {
                     <AssignmentTable
                         assignments={filteredAssignments}
                         loading={loading}
-                        onView={handleView}       // ✅ Passed
-                        onEdit={handleEdit}       // ✅ Passed
-                        onDelete={handleDelete}   // ✅ Passed
+                        onView={handleView}       
+                        onEdit={handleEdit}     
+                        onDelete={handleDelete} 
                     />
                 </div>
             </div>
@@ -112,7 +109,6 @@ export default function TeacherAssignmentsPage() {
             
             <EditAssignmentDrawer isOpen={isEditDrawerOpen} onClose={() => { setIsEditDrawerOpen(false); setSelectedAssignment(null); }} onSuccess={handleSuccess} assignment={selectedAssignment} />
             
-            {/* ✅ View Modal */}
             <AssignmentViewModal
                 isOpen={isViewModalOpen}
                 onClose={() => { setIsViewModalOpen(false); setSelectedAssignment(null); }}
