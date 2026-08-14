@@ -8,7 +8,7 @@ import { userService, UpdateUserData } from "@/services/user.service";
 
 const editUserSchema = z.object({
     firstName: z.string().min(1, "First name is required"),
-    lastName: z.string().optional(),
+    lastName: z.string().nullable().optional(),
     email: z.string().email("Please enter a valid email address"),
     isActive: z.boolean(),
 });
@@ -44,7 +44,7 @@ export default function EditUserDrawer({ isOpen, onClose, onSuccess, userId }: E
                 if (isMounted) {
                     reset({
                         firstName: user.firstName,
-                        lastName: user.lastName,
+                        lastName: user.lastName || "",
                         email: user.email,
                         isActive: user.isActive,
                     });

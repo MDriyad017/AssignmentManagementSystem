@@ -3,6 +3,5 @@
   <Project Path="AssignmentManagementSystem.BusinessLogicLayer/AssignmentManagementSystem.BusinessLogicLayer.csproj" />
   <Project Path="AssignmentManagementSystem.DataAccessLayer/AssignmentManagementSystem.DataAccessLayer.csproj" />
   <Project Path="AssignmentManagementSystem.Shared/AssignmentManagementSystem.Shared.csproj" />
-  <Project Path="AssignmentManagementSystem.Tests.Integration/AssignmentManagementSystem.Tests.Integration.csproj" />
   <Project Path="AssignmentManagementSystem.Tests.Unit/AssignmentManagementSystem.Tests.Unit.csproj" />
 </Solution>

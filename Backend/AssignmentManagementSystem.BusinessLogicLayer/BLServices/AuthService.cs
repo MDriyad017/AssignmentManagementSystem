@@ -3,11 +3,6 @@ using AssignmentManagementSystem.BusinessLogicLayer.Entities;
 using AssignmentManagementSystem.BusinessLogicLayer.Interfaces.IRepositories;
 using AssignmentManagementSystem.BusinessLogicLayer.Interfaces.IServices;
 using AssignmentManagementSystem.Shared.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
 {
@@ -24,36 +19,68 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
 
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto dto)
         {
+            var user = await _userRepository.GetByEmailAsync(dto.Email);
+
+            if (user == null)
+            {
+                throw new Exception("Invalid email or password.");
+            }
+
+            var isPasswordValid = PasswordHasher.Verify(dto.Password, user.PasswordHash);
+
+            if (!isPasswordValid)
+            {
+                throw new Exception("Invalid email or password.");
+            }
+
+            if (!user.IsActive)
+            {
+                throw new Exception("Your account is inactive.");
+            }
+
+            var token = _jwtService.GenerateToken(user);
+
+            return new LoginResponseDto
+            {
+                Id = user.Id,
+                FullName = $"{user.FirstName} {user.LastName}".Trim(),
+                Email = user.Email,
+                Role = user.Role,
+                Token = token
+            };
+        }
+
+        public async Task<User?> GetUserFromTokenAsync(string token)
+        {
             try
             {
-                User? user = await _userRepository.GetByEmailAsync(dto.Email);
+                var principal = _jwtService.GetPrincipalFromToken(token);
 
-                if (user == null)
-                    throw new Exception("Invalid email or password.");
-
-                bool isPasswordValid = PasswordHasher.Verify(dto.Password, user.PasswordHash);
-
-                if (!isPasswordValid)
-                    throw new Exception("Invalid email or password.");
-
-                if (!user.IsActive)
-                    throw new Exception("Your account is inactive.");
-
-                string token = _jwtService.GenerateToken(user);
-
-                return new LoginResponseDto
+                if (principal == null)
                 {
-                    Id = user.Id,
-                    FullName = $"{user.FirstName} {user.LastName}",
-                    Email = user.Email,
-                    Role = user.Role,
-                    Token = token
-                };
+                    return null;
+                }
+
+                var userIdClaim = principal.FindFirst(
+                    System.Security.Claims.ClaimTypes.NameIdentifier
+                );
+
+                if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+                {
+                    return null;
+                }
+
+                return await _userRepository.GetByIdAsync(userId);
             }
             catch
             {
-                throw;
+                return null;
             }
+        }
+
+        public async Task<User?> GetUserByIdAsync(Guid id)
+        {
+            return await _userRepository.GetByIdAsync(id);
         }
     }
 }

@@ -22,9 +22,9 @@ export interface AuthUser {
 
 export interface AuthContextType {
     user: AuthUser | null;
-    token: string | null;
+    token: string | null; 
     isAuthenticated: boolean;
     isLoading: boolean;
     login: (email: string, password: string) => Promise<AuthUser>;
-    logout: () => void;
+    logout: () => Promise<void>;
 }

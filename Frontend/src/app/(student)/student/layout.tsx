@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import AppLayout from "@/components/layout/AppLayout";
 
 interface Props {
@@ -7,9 +6,5 @@ interface Props {
 }
 
 export default function StudentLayout({ children }: Props) {
-    return (
-        <ProtectedRoute allowedRoles={["Student"]}>
-            <AppLayout>{children}</AppLayout>
-        </ProtectedRoute>
-    );
+    return <AppLayout>{children}</AppLayout>;
 }

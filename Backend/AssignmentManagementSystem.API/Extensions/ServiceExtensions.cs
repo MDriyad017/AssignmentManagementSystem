@@ -21,8 +21,7 @@ namespace AssignmentManagementSystem.API.Extensions
             services.AddScoped<IStudentClassAssignRepository, StudentClassAssignRepository>();
             services.AddScoped<IAssignmentRepository, AssignmentRepository>();
             services.AddScoped<ISubmissionRepository, SubmissionRepository>();
-
-
+            services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 
             // Business Services
             services.AddScoped<IUserService, UserService>();
@@ -34,7 +33,7 @@ namespace AssignmentManagementSystem.API.Extensions
             services.AddScoped<IStudentClassAssignService, StudentClassAssignService>();
             services.AddScoped<IAssignmentService, AssignmentService>();
             services.AddScoped<ISubmissionService, SubmissionService>();
-
+            services.AddScoped<IAuditLogService, AuditLogService>();
 
             return services;
         }
@@ -42,20 +41,73 @@ namespace AssignmentManagementSystem.API.Extensions
         public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
+
             var jwtSettings = configuration.GetSection("Jwt").Get<JwtSettings>();
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            if (jwtSettings == null)
             {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtSettings!.Issuer,
-                    ValidAudience = jwtSettings.Audience,
+                throw new InvalidOperationException("JWT settings are not configured correctly.");
+            }
 
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
+            if (string.IsNullOrWhiteSpace(jwtSettings.Key))
+            {
+                throw new InvalidOperationException("JWT Key is missing from configuration.");
+            }
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters =
+                    new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+
+                        ValidIssuer = jwtSettings.Issuer,
+                        ValidAudience = jwtSettings.Audience,
+
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)),
+
+                        ClockSkew = TimeSpan.Zero
+                    };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Cookies["access_token"];
+
+                        if (!string.IsNullOrWhiteSpace(accessToken))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return Task.CompletedTask;
+                    },
+
+                    OnAuthenticationFailed = context =>
+                    {
+                        Console.WriteLine($"JWT Authentication Failed: {context.Exception.Message}");
+                        return Task.CompletedTask;
+                    },
+
+                    OnTokenValidated = context =>
+                    {
+                        Console.WriteLine("JWT Authentication Successful.");
+                        return Task.CompletedTask;
+                    },
+
+                    OnChallenge = context =>
+                    {
+                        Console.WriteLine($"JWT Challenge: {context.Error}");
+                        return Task.CompletedTask;
+                    }
                 };
             });
 

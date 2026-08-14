@@ -3,13 +3,9 @@ using AssignmentManagementSystem.BusinessLogicLayer.Interfaces.IServices;
 using AssignmentManagementSystem.Shared.Configurations;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
 {
@@ -30,22 +26,49 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role),
                 new Claim("FirstName", user.FirstName),
-                new Claim("LastName", user.LastName ?? "")
+                new Claim("LastName", user.LastName ?? string.Empty)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
-
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
                 claims: claims,
+                notBefore: DateTime.Now,
                 expires: DateTime.Now.AddMinutes(_jwtSettings.ExpireMinutes),
                 signingCredentials: credentials
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public ClaimsPrincipal? GetPrincipalFromToken(string token)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
+
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = key,
+                    ValidateIssuer = true,
+                    ValidIssuer = _jwtSettings.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = _jwtSettings.Audience,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                return tokenHandler.ValidateToken(token, validationParameters, out _);
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

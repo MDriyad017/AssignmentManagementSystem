@@ -88,7 +88,7 @@ export default function StudentAssignmentViewModal({ isOpen, onClose, assignment
                                             <Eye size={14} /> Preview
                                         </button>
                                     )} */}
-                                    <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1" download>
+                                    <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-btn-outline-success d-flex align-items-center gap-1" download>
                                         <Download size={14} /> Preview
                                     </a>
                                 </div>

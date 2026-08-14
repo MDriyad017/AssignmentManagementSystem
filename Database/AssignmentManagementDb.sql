@@ -1,7 +1,7 @@
 -- ============================================================
 -- Assignment Management System Database
 -- ============================================================
--- Database Name: AssignmentManagementDB2
+-- Database Name: AssignmentManagementDb
 -- 1. Users Table
 -- ============================================================
 CREATE TABLE Users
@@ -140,4 +140,51 @@ CREATE TABLE AuditLogs
     CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT FK_AuditLogs_User FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE RESTRICT
+);
+
+
+-- ============================================================
+-- Dummy Users Insert Script
+-- ============================================================
+
+-- Admin User
+INSERT INTO Users (
+    Id, Email, PasswordHash, FirstName, LastName, Role, IsActive, CreatedAt
+) VALUES (
+    '11111111-1111-1111-1111-111111111111',
+    'admin123@gmail.com',
+    'e260kuopyiZBN5rglaXsYgWWUUtSmdmOpNB1HAPtHA4Kj4udNEnlZuh8F3c5i32u', -- admin@123
+    'Admin',
+    'User',
+    'Admin',
+    TRUE,
+    CURRENT_TIMESTAMP
+);
+
+-- Teacher User
+INSERT INTO Users (
+    Id, Email, PasswordHash, FirstName, LastName, Role, IsActive, CreatedAt
+) VALUES (
+    '22222222-2222-2222-2222-222222222222',
+    'teacher123@gmail.com',
+    'lXmGJT8Za0tdMgvgYu3wLASpH7Gk9hheWwDY1m8AYz3MUg+v0PDUe1NRcRqiIkq8', -- teacher@123
+    'Teacher',
+    'User',
+    'Teacher',
+    TRUE,
+    CURRENT_TIMESTAMP
+);
+
+-- Student User
+INSERT INTO Users (
+    Id, Email, PasswordHash, FirstName, LastName, Role, IsActive, CreatedAt
+) VALUES (
+    '33333333-3333-3333-3333-333333333333',
+    'student123@gmail.com',
+    'L6L2OPt/KQ5iBHbT//80CY2M1d6YEf9z5Df0ofxW8JLxkY91Fi6xeIi7xtUTcC9C', -- student@123
+    'Student',
+    'User',
+    'Student',
+    TRUE,
+    CURRENT_TIMESTAMP
 );

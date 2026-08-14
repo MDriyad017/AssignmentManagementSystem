@@ -79,10 +79,10 @@ export default function StudentClassAssignTable({ groups, loading, onView, onEdi
                             <td style={{ padding: "10px 16px", textAlign: "center" }}>
                                 <div className="d-flex justify-content-center gap-2">
                                     <button type="button" className="btn btn-sm" onClick={() => onView(group.studentId, group.studentName)} style={{ backgroundColor: "rgba(0,79,79,0.1)", color: "var(--primary-color)", border: "none", borderRadius: "var(--border-radius)", padding: "5px 10px", transition: "var(--transition)" }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(0,79,79,0.2)")} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(0,79,79,0.1)")}>
-                                        <Eye size={16} /> View
+                                        <Eye size={16} />
                                     </button>
                                     <button type="button" className="btn btn-sm" onClick={() => onEdit(group)} style={{ backgroundColor: "rgba(0,79,79,0.1)", color: "var(--primary-color)", border: "none", borderRadius: "var(--border-radius)", padding: "5px 10px", transition: "var(--transition)" }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(0,79,79,0.2)")} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(0,79,79,0.1)")}>
-                                        <Pencil size={16} /> Edit
+                                        <Pencil size={16} />
                                     </button>
                                     <button type="button" className="btn btn-sm" onClick={() => handleDeleteClick(group.studentId, group.studentName)} style={{ backgroundColor: "rgba(220,53,69,0.1)", color: "var(--danger-color)", border: "none", borderRadius: "var(--border-radius)", padding: "5px 10px", transition: "var(--transition)" }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(220,53,69,0.2)")} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(220,53,69,0.1)")}>
                                         <Trash2 size={16} />

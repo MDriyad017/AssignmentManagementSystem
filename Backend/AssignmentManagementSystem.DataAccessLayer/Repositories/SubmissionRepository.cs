@@ -69,12 +69,9 @@ namespace AssignmentManagementSystem.DataAccessLayer.Repositories
         public async Task<IEnumerable<Submission>> GetByTeacherIdAsync(Guid teacherId)
         {
             return await _context.Submissions
-                .Include(x => x.Assignment)
-                    .ThenInclude(a => a.Teacher)
-                .Include(x => x.Assignment)
-                    .ThenInclude(a => a.Class)
-                .Include(x => x.Assignment)
-                    .ThenInclude(a => a.Subject)
+                .Include(x => x.Assignment).ThenInclude(a => a.Teacher)
+                .Include(x => x.Assignment).ThenInclude(a => a.Class)
+                .Include(x => x.Assignment).ThenInclude(a => a.Subject)
                 .Include(x => x.Student)
                 .Include(x => x.GradedbyNavigation)
                 .Where(x => x.Assignment.TeacherId == teacherId)

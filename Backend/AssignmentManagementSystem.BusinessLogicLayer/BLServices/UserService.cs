@@ -1,24 +1,31 @@
 ﻿using AssignmentManagementSystem.BusinessLogicLayer.DTOs.User;
 using AssignmentManagementSystem.BusinessLogicLayer.Entities;
+using AssignmentManagementSystem.BusinessLogicLayer.Helpers;
 using AssignmentManagementSystem.BusinessLogicLayer.Interfaces.IRepositories;
 using AssignmentManagementSystem.BusinessLogicLayer.Interfaces.IServices;
 using AssignmentManagementSystem.Shared.Helpers;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IAuditLogService _auditLogService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-
-        public UserService(IUserRepository userRepository)
+        public UserService(IUserRepository userRepository, IAuditLogService auditLogService, IHttpContextAccessor httpContextAccessor)
         {
             _userRepository = userRepository;
+            _auditLogService = auditLogService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<UserResponseDto?> GetUserByIdAsync(Guid id)
@@ -46,12 +53,11 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
                 .Select(MapToResponseDto);
         }
 
-        public async Task CreateUserAsync(UserCreateDto entity)
+        public async Task CreateUserAsync(UserCreateDto dto)
         {
-
             try
             {
-                bool emailExists = await _userRepository.ExistsByEmailAsync(entity.Email);
+                bool emailExists = await _userRepository.ExistsByEmailAsync(dto.Email);
 
                 if (emailExists)
                 {
@@ -61,18 +67,24 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
                 User user = new User
                 {
                     Id = Guid.NewGuid(),
-                    FirstName = entity.FirstName,
-                    LastName = entity.LastName,
-                    Email = entity.Email,
-                    PasswordHash = PasswordHasher.Hash(entity.Password),
-                    Role = entity.Role,
-                    ProfilePictureUrl = entity.ProfilePictureUrl,
+                    FirstName = dto.FirstName,
+                    LastName = dto.LastName,
+                    Email = dto.Email,
+                    PasswordHash = PasswordHasher.Hash(dto.Password),
+                    Role = dto.Role,
+                    ProfilePictureUrl = dto.ProfilePictureUrl,
                     IsActive = true,
                     CreatedAt = DateTime.Now
                 };
 
                 await _userRepository.AddAsync(user);
                 await _userRepository.SaveChangesAsync();
+
+                // AuditLog: Create User
+                await AuditLogHelper.LogAsync(_auditLogService, user.Id, "Create User", "User", user.Id, null,
+                    new { user.FirstName, user.LastName, user.Email, user.Role },
+                    _httpContextAccessor.HttpContext
+                );
             }
             catch (Exception ex)
             {
@@ -80,7 +92,7 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
             }
         }
 
-        public async Task UpdateUserAsync(Guid id, UserUpdateDto entity)
+        public async Task UpdateUserAsync(Guid id, UserUpdateDto dto)
         {
 
             try
@@ -92,26 +104,35 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
                     throw new Exception("User not found.");
                 }
 
-                if (user.Email != entity.Email)
+                if (user.Email != dto.Email)
                 {
-                    bool emailExists = await _userRepository.ExistsByEmailAsync(entity.Email);
+                    bool emailExists = await _userRepository.ExistsByEmailAsync(dto.Email);
 
                     if (emailExists)
                     {
                         throw new Exception("Email already exists.");
                     }
 
-                    user.Email = entity.Email;
+                    user.Email = dto.Email;
                 }
 
-                user.FirstName = entity.FirstName;
-                user.LastName = entity.LastName;
-                user.Email = entity.Email;
-                user.ProfilePictureUrl = entity.ProfilePictureUrl;
+                // Store old values for audit
+                var oldValues = new { user.FirstName, user.LastName, user.Email, user.IsActive };
+
+                user.FirstName = dto.FirstName;
+                user.LastName = dto.LastName;
+                user.Email = dto.Email;
+                user.ProfilePictureUrl = dto.ProfilePictureUrl;
+                user.IsActive = dto.IsActive;
                 user.UpdatedAt = DateTime.Now;
 
                 _userRepository.Update(user);
                 await _userRepository.SaveChangesAsync();
+
+                // AuditLog: Update User
+                await AuditLogHelper.LogAsync(_auditLogService, user.Id, "Update User", "User", user.Id, oldValues, new { user.FirstName, user.LastName, user.Email, user.IsActive },
+                    _httpContextAccessor.HttpContext
+                );
             }
             catch (Exception ex)
             {
@@ -130,8 +151,14 @@ namespace AssignmentManagementSystem.BusinessLogicLayer.BLServices
                     throw new Exception("User not found.");
                 }
 
+                // Store user info before delete for audit
+                var userInfo = new { user.FirstName, user.LastName, user.Email, user.Role };
+
                 _userRepository.Delete(user);
                 await _userRepository.SaveChangesAsync();
+
+                // AuditLog: Delete User
+                await AuditLogHelper.LogAsync(_auditLogService, user.Id, "Delete User", "User", user.Id, userInfo, null, _httpContextAccessor.HttpContext);
             }
             catch (Exception ex)
             {

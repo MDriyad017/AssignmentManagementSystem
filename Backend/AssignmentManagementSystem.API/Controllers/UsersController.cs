@@ -69,6 +69,7 @@ namespace AssignmentManagementSystem.API.Controllers
             }
         }
 
+        [Authorize(Roles = nameof(UserRole.Admin))]
         [HttpPost]
         [Route("UIN001")]
         public async Task<IActionResult> CreateUser(UserCreateDto dto)

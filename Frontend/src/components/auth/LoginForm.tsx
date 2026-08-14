@@ -21,15 +21,12 @@ export default function LoginForm() {
             setError(null);
             const user = await login(data.email, data.password);
             const role = user?.role?.toLowerCase();
-            if (role === "admin") {
-                router.push("/admin/dashboard");
-            } else if (role === "teacher") {
-                router.push("/teacher/dashboard");
-            } else if (role === "student") {
-                router.push("/student/dashboard");
-            } else {
-                router.push("/dashboard");
-            }
+            const redirectMap: Record<string, string> = {
+                admin: "/admin/dashboard",
+                teacher: "/teacher/dashboard",
+                student: "/student/dashboard",
+            };
+            router.push(redirectMap[role] || "/dashboard");
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : "Invalid email or password";
             setError(errorMessage);

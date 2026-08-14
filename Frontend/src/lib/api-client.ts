@@ -1,33 +1,51 @@
 import axios from "axios";
-import { getToken, removeToken } from "@/lib/auth";
-import { USER_KEY } from "@/utils/constants";
 
 const apiClient = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
-    headers: { "Content-Type": "application/json" },
+    headers: {
+        "Content-Type": "application/json"
+    },
+    withCredentials: true
 });
 
 apiClient.interceptors.request.use(
-    config => {
-        const token = getToken();
+    (config) => {
+        console.log(
+            "[API] Request:",
+            config.method?.toUpperCase(),
+            config.url
+        );
 
-        if (token)
-            config.headers.Authorization = `Bearer ${token}`;
+        console.log(
+            "[API] withCredentials:",
+            config.withCredentials
+        );
 
         return config;
     },
-    error => Promise.reject(error)
+    (error) => {
+        console.error("[API] Request Error:", error);
+        return Promise.reject(error);
+    }
 );
 
 apiClient.interceptors.response.use(
-    response => response,
-    error => {
-        if (error.response?.status === 401) {
-            removeToken();
+    (response) => {
+        console.log(
+            "[API] Response:",
+            response.status,
+            response.config.url
+        );
 
-            if (typeof window !== "undefined")
-                localStorage.removeItem(USER_KEY);
-        }
+        return response;
+    },
+    (error) => {
+        console.error("[API] API Error:", {
+            status: error.response?.status,
+            url: error.response?.config?.url,
+            method: error.response?.config?.method,
+            data: error.response?.data
+        });
 
         return Promise.reject(error);
     }

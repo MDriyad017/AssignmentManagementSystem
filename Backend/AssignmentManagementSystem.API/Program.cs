@@ -1,12 +1,9 @@
 using AssignmentManagementSystem.API.Extensions;
-using AssignmentManagementSystem.Shared.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddDatabase(builder.Configuration);
 builder.Services.AddSwaggerServices();
 builder.Services.AddApplicationServices();
@@ -19,13 +16,13 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins("http://localhost:3000")
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwaggerDocumentation();
@@ -33,7 +30,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseHttpsRedirection();
+
 app.UseCors("Frontend");
+
 app.UseAuthentication();
 app.UseAuthorization();
 

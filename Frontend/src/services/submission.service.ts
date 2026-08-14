@@ -1,7 +1,12 @@
 import apiClient from "@/lib/api-client";
-import { Submission, SubmissionGroup, SubmissionGradeData, CreateSubmissionData, GradeResponse } from "@/types/submission";
+import { Submission, SubmissionGroup, SubmissionGradeData, GradeResponse } from "@/types/submission";
 
 export const submissionService = {
+
+    getAll: async (): Promise<Submission[]> => {
+        const response = await apiClient.get("/Submissions/CG001");
+        return response.data;
+    },
 
     getByTeacherId: async (teacherId: string): Promise<SubmissionGroup[]> => {
         const response = await apiClient.get(`/Submissions/CGT001?teacherId=${teacherId}`);

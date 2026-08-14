@@ -2,9 +2,11 @@
 using AssignmentManagementSystem.BusinessLogicLayer.DTOs.User;
 using AssignmentManagementSystem.BusinessLogicLayer.Entities;
 using AssignmentManagementSystem.BusinessLogicLayer.Interfaces.IRepositories;
+using AssignmentManagementSystem.BusinessLogicLayer.Interfaces.IServices;
 using AssignmentManagementSystem.Tests.Unit.Helpers;
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -17,12 +19,16 @@ namespace AssignmentManagementSystem.Tests.Unit.Services
     public class UserServiceTests
     {
         private readonly Mock<IUserRepository> _userRepositoryMock;
+        private readonly Mock<IAuditLogService> _auditLogServiceMock;
+        private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
         private readonly UserService _userService;
 
         public UserServiceTests()
         {
             _userRepositoryMock = new Mock<IUserRepository>();
-            _userService = new UserService(_userRepositoryMock.Object);
+            _auditLogServiceMock = new Mock<IAuditLogService>();
+            _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+            _userService = new UserService(_userRepositoryMock.Object, _auditLogServiceMock.Object, _httpContextAccessorMock.Object);
         }
 
         [Fact]

@@ -82,7 +82,7 @@ export default function TeacherSubjectAssignTable({ groups, loading, onView, onD
                                 <td style={{ padding: "10px 16px", textAlign: "center" }}>
                                     <div className="d-flex justify-content-center gap-2">
                                         <button type="button" className="btn btn-sm" onClick={() => onView(group)} style={{ backgroundColor: "rgba(0,79,79,0.1)", color: "var(--primary-color)", border: "none", borderRadius: "var(--border-radius)", padding: "5px 10px", transition: "var(--transition)" }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(0,79,79,0.2)")} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(0,79,79,0.1)")}>
-                                            <Eye size={16} /> View
+                                            <Eye size={16} />
                                         </button>
                                         <button type="button" className="btn btn-sm" onClick={() => handleDeleteClick(group.teacherId, group.teacherName)} style={{ backgroundColor: "rgba(220,53,69,0.1)", color: "var(--danger-color)", border: "none", borderRadius: "var(--border-radius)", padding: "5px 10px", transition: "var(--transition)" }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(220,53,69,0.2)")} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(220,53,69,0.1)")}>
                                             <Trash2 size={16} />

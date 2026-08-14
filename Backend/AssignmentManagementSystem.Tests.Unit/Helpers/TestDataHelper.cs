@@ -22,7 +22,7 @@ namespace AssignmentManagementSystem.Tests.Unit.Helpers
                     PasswordHash = "hashed_password",
                     Role = "Admin",
                     IsActive = true,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now
                 },
                 new User
                 {
@@ -33,7 +33,7 @@ namespace AssignmentManagementSystem.Tests.Unit.Helpers
                     PasswordHash = "hashed_password",
                     Role = "Teacher",
                     IsActive = true,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now
                 },
                 new User
                 {
@@ -44,7 +44,7 @@ namespace AssignmentManagementSystem.Tests.Unit.Helpers
                     PasswordHash = "hashed_password",
                     Role = "Student",
                     IsActive = true,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now
                 }
             };
         }
@@ -58,14 +58,14 @@ namespace AssignmentManagementSystem.Tests.Unit.Helpers
                     Id = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
                     Name = "Class - Six",
                     Code = "C006",
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now
                 },
                 new Class
                 {
                     Id = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                     Name = "Class - Seven",
                     Code = "C007",
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now
                 }
             };
         }
@@ -80,7 +80,7 @@ namespace AssignmentManagementSystem.Tests.Unit.Helpers
                     Name = "Bangla (1st Part)",
                     Code = "BF-006",
                     ClassId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now
                 },
                 new Subject
                 {
@@ -88,7 +88,7 @@ namespace AssignmentManagementSystem.Tests.Unit.Helpers
                     Name = "Bangla (2nd Part)",
                     Code = "BS-006",
                     ClassId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.Now
                 }
             };
         }
